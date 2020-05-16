@@ -10,11 +10,14 @@
       "matches": [
         "<all_urls>"
       ],
-      "js": ["jquery.js", "popup.js", "enterSignIn.js"],
+      "js": ["jquery.js", "popup.js", "clickSignIn.js", "enterSignIn.js"],
       "all_frames": true
     }
   ],
   "browser_action": {
     "default_icon": "icon.png"
-  }
+  },
+  "permissions": [
+    "storage"
+  ]
 }

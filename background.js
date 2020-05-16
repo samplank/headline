@@ -63,20 +63,32 @@ chrome.tabs.onUpdated.addListener(
     }
     // sign out of the Atlantic in the new tab
     if (changeInfo.status == "complete" && signOutTab == tabId) {
+      if (currentSite == "nytimes") {
+        chrome.tabs.sendMessage(signOutTab, {"message": "signOutNYT"});
+        SignOutTab = null;
+        // signOutComplete = true;
+      }
+
+      if (currentSite == "wapo") {
+        chrome.tabs.sendMessage(signOutTab, {"message": "signOutWaPo"});
+        // SignOutTab = null;
+        // signOutComplete = true;
+      }
+
       if (currentSite == "atlantic") {
         chrome.tabs.sendMessage(signOutTab, {"message": "signOutAtlantic"});
-        SignOutTab = null;
-        signOutComplete = true;
+        // SignOutTab = null;
+        // signOutComplete = true;
       }
     }
 
     // close the background logout tab
-    // if (changeInfo.status == "complete" && signOutComplete) {
-    //   // chrome.tabs.remove(signOutTab);
-    //   signOutTab = null;
-    //   signOutComplete = false;
+    if (changeInfo.status == "complete" && signOutComplete) {
+      chrome.tabs.remove(signOutTab);
+      signOutTab = null;
+      signOutComplete = false;
 
-    // }
+    }
 
 
 

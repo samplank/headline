@@ -146,6 +146,7 @@ chrome.runtime.onMessage.addListener(
 
           chrome.runtime.sendMessage({logout: "success"});
           console.log('existsMasthead')
+          location.reload()
         }
 
       });
@@ -156,27 +157,33 @@ chrome.runtime.onMessage.addListener(
         //...
       });
 
+      setTimeout(function(){
+         window.location.reload(1);
+      }, 5000);
 
     }
 
     if( request.message === "signOutWaPo" ) { 
 
-      var existsSignIn = $('button:contains("Sign out")').length !== 0;
+      var existsSignIn = Math.max($('button:contains("Sign in")').length, existsSignIn = $('button:contains("sign in")').length) !== 0;
 
       if(existsSignIn) {
         chrome.runtime.sendMessage({logout: "success"});
+        location.reload();
       }
 
       MutationObserverSignOut = window.MutationObserver || window.WebKitMutationObserver;
 
       var observerSignOut = new MutationObserverSignOut(function(mutations, observer) {
 
-        var existsSignIn = $('button:contains("Sign out")').length !== 0;
+        var existsSignIn = Math.max($('button:contains("Sign in")').length, existsSignIn = $('button:contains("sign in")').length) !== 0;
+        console.log(existsSignIn);
 
         if(existsSignIn) {
           observerSignOut.disconnect();
 
           chrome.runtime.sendMessage({logout: "success"});
+          location.reload();
         }
 
       });
@@ -186,6 +193,10 @@ chrome.runtime.onMessage.addListener(
         attributes: true
         //...
       });
+
+      setTimeout(function(){
+         window.location.reload(1);
+      }, 5000);
 
     }
 
@@ -197,7 +208,9 @@ chrome.runtime.onMessage.addListener(
       var existsUsername = document.getElementById("username");
 
       if(existsUsername) {
+        wait(5000)
         chrome.runtime.sendMessage({logout: "success"});
+        location.reload();
         console.log('existsUsername')
       }
 
@@ -212,6 +225,7 @@ chrome.runtime.onMessage.addListener(
           observerSignOut.disconnect();
 
           chrome.runtime.sendMessage({logout: "success"});
+          location.reload();
         }
 
       });
@@ -227,3 +241,11 @@ chrome.runtime.onMessage.addListener(
 
   }
 );
+
+function wait(ms){
+   var start = new Date().getTime();
+   var end = start;
+   while(end < start + ms) {
+     end = new Date().getTime();
+  }
+}

@@ -4,18 +4,30 @@ var signOutComplete = false;
 var currentSite;
 var signOutTab;
 
+chrome.runtime.onInstalled.addListener(function() {
+  chrome.storage.sync.set({credits: 10});
+});
+
 // click on the icon which will click the appropriate login button
 chrome.browserAction.onClicked.addListener(function(tab) {
+    chrome.storage.sync.get(['credits'], function(result) {
+      chrome.runtime.sendMessage({num_credits: result.credits});
+    });
   // Send a message to the active tab
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    var activeTab = tabs[0];
-    chrome.tabs.sendMessage(activeTab.id, {"message": "clicked_browser_action"});
-    startSignIn = true;
-  });
+  // chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  //   var activeTab = tabs[0];
+  //   chrome.tabs.sendMessage(activeTab.id, {"message": "clicked_browser_action"});
+  //   startSignIn = true;
+  // });
 });
 
 chrome.tabs.onUpdated.addListener(
   function(tabId, changeInfo, tab) {
+
+  chrome.storage.sync.get(['credits'], function(result) {
+    chrome.runtime.sendMessage({num_credits: result.credits});
+  });
+
 
     // send message to active tab to begin sign in process, once it has loaded
     if (changeInfo.status == "complete" && startSignIn == true) {
@@ -99,6 +111,22 @@ chrome.tabs.onUpdated.addListener(
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     console.log(request);
+    //start signin listener (from popup)
+    if(request.message === 'popupButtonClicked') {
+      console.log('popupButtonClicked received!')
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        var activeTab = tabs[0];
+        chrome.tabs.sendMessage(activeTab.id, {"message": "clickLoginButton"});
+        startSignIn = true;
+      });
+      chrome.storage.sync.get(['credits'], function(result) {
+        console.log('Value currently is ' + result.credits);
+        chrome.storage.sync.set({credits: result.credits - 1});
+      });
+    }
+
+
+    // logout listeners
     if(request.site === "nytimesLogin") {
       isLoggedIn = true;
       currentSite = 'nytimes';

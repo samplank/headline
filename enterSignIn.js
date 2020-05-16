@@ -1,6 +1,5 @@
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    console.log(request);
 
     if( request.message === "start_sign_in" ) {
 

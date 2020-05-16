@@ -1,6 +1,6 @@
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    if( request.message === "clicked_browser_action" ) {
+    if( request.message === "clickLoginButton" ) {
 
       if (location.href.includes("nytimes.com")) {
       	var nytSignIn = $('button:contains("Log In")').first();

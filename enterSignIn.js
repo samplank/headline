@@ -222,7 +222,7 @@ chrome.runtime.onMessage.addListener(
 
         if(existsUsername) {
           observerSignOut.disconnect();
-
+          wait(5000)
           chrome.runtime.sendMessage({logout: "success"});
           location.reload();
         }

@@ -125,6 +125,12 @@ chrome.runtime.onMessage.addListener(
       });
     }
 
+    if(request.message === "requestCredits") {
+      chrome.storage.sync.get(['credits'], function(result) {
+        chrome.runtime.sendMessage({num_credits: result.credits});
+      });
+    }
+
 
     // logout listeners
     if(request.site === "nytimesLogin") {

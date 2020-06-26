@@ -3,11 +3,11 @@ chrome.runtime.onMessage.addListener(
     if( request.message === "clickLoginButton" ) {
 
       if (location.href.includes("nytimes.com")) {
-      	var nytSignIn = $('button:contains("Log In")').first();
-      	nytSignIn.click();
+      	// var nytSignIn = $('button:contains("Log In")').first();
+        location.reload();
 
       } else if (location.href.includes("washingtonpost.com")) {
-      	var wapoSignIn = $('#actAction');
+        var wapoSignIn = $('a[href*="washingtonpost.com/subscribe/signin/"]').get(0);
       	wapoSignIn.click();
 
       } else if (location.href.includes("theatlantic.com")) {

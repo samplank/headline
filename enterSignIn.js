@@ -145,7 +145,7 @@ chrome.runtime.onMessage.addListener(
 
           chrome.runtime.sendMessage({logout: "success"});
           console.log('existsMasthead')
-          location.reload()
+          // location.reload()
         }
 
       });
@@ -158,7 +158,7 @@ chrome.runtime.onMessage.addListener(
 
       setTimeout(function(){
          window.location.reload(1);
-      }, 5000);
+      }, 20000);
 
     }
 

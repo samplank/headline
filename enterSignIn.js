@@ -1,7 +1,8 @@
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
 
-    if( request.message === "start_sign_in" ) {
+    if(request.message === "start_sign_in") {
+      console.log('start_sign_in received');
 
       if (location.href.includes("nytimes.com")) {
 
@@ -45,6 +46,7 @@ chrome.runtime.onMessage.addListener(
 
 
       if (location.href.includes("washingtonpost.com")) {
+        console.log('onwapo');
 
         MutationObserverUser = window.MutationObserver || window.WebKitMutationObserver;
 

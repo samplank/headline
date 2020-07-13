@@ -1,19 +1,18 @@
-$(document).ready(function() {
-  document.getElementById("headlineView").addEventListener("click", sendSignIn);
-});
+// $(document).ready(function() {
+//   document.getElementById("headlineView").addEventListener("click", sendSignIn);
+// });
 
-function sendSignIn(){
-  chrome.runtime.sendMessage({message: "popupButtonClicked"});
-  console.log('popupButtonClicked sent!')
-}
+// function sendSignIn(){
+//   chrome.runtime.sendMessage({message: "popupButtonClicked"});
+//   console.log('popupButtonClicked sent!')
+// }
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-  	console.log(request);
   	var message = document.getElementById("message")
 	if (request.num_credits <= 0) {
 		message.innerHTML = "You are out of credits!";
-		document.getElementById("headlineView").disabled = true;
+		// document.getElementById("headlineView").disabled = true;
 	} else if (request.num_credits > 0) {
 		console.log('credits received')
 		var credits = request.num_credits;
@@ -23,4 +22,4 @@ chrome.runtime.onMessage.addListener(
   }
 );
 
-chrome.runtime.sendMessage({message: "requestCredits"});
+chrome.runtime.sendMessage({message: "popupRequestCredits"});

@@ -23,7 +23,7 @@ chrome.tabs.onUpdated.addListener(
   });
 
 
-    // send message to active tab to begin sign in process, once it has loaded
+    // send message to active tab to begin sign in process, once it has loaded (for WaPo and Atlantic)
     if (changeInfo.status == "complete" && startSignIn == true) {
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         var activeTab = tabs[0];
@@ -80,24 +80,37 @@ chrome.runtime.onMessage.addListener(
     console.log(request);
     //start signin listener (from popup)
     if(request.message === 'popupButtonClicked') {
-      console.log('popupButtonClicked received!')
-      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, {"message": "clickLoginButton"});
-        startSignIn = true;
-      });
+
+      // NYT doesn't need to load a new page, so send start_sign_in here
+      if (request.site == 'nyt') {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+          var activeTab = tabs[0];
+          chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in"});
+        });
+      }
+
+      startSignIn = true;
+
       chrome.storage.sync.get(['credits'], function(result) {
         console.log('Value currently is ' + result.credits);
         chrome.storage.sync.set({credits: result.credits - 1});
       });
     }
 
-    if(request.message === "requestCredits") {
+    if(request.message === "popupRequestCredits") {
       chrome.storage.sync.get(['credits'], function(result) {
         chrome.runtime.sendMessage({num_credits: result.credits});
       });
     }
 
+    if(request.message === "loginRequestCredits") {
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        var activeTab = tabs[0];
+        chrome.storage.sync.get(['credits'], function(result) {
+          chrome.tabs.sendMessage(activeTab.id, {num_credits: result.credits});
+        });
+      });
+    }
 
     // logout listeners
     if(request.site === "nytimesLogin") {

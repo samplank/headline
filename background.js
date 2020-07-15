@@ -81,7 +81,7 @@ chrome.runtime.onMessage.addListener(
     //start signin listener (from popup)
     if(request.message === 'popupButtonClicked') {
 
-      // NYT doesn't need to load a new page, so send start_sign_in here
+      // NYT doesn't load a new page, so send start_sign_in here
       if (request.site == 'nyt') {
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
           var activeTab = tabs[0];
@@ -90,11 +90,6 @@ chrome.runtime.onMessage.addListener(
       }
 
       startSignIn = true;
-
-      chrome.storage.sync.get(['credits'], function(result) {
-        console.log('Value currently is ' + result.credits);
-        chrome.storage.sync.set({credits: result.credits - 1});
-      });
     }
 
     if(request.message === "popupRequestCredits") {
@@ -124,6 +119,12 @@ chrome.runtime.onMessage.addListener(
     if(request.site === "atlanticLogin") {
       isLoggedIn = true;
       currentSite = 'atlantic';
+    }
+    if (request.site === "nytimesLogin" || request.site === "wapoLogin" || request.site === "atlanticLogin"){
+      chrome.storage.sync.get(['credits'], function(result) {
+        console.log('Value currently is ' + result.credits);
+        chrome.storage.sync.set({credits: result.credits - 1});
+      });
     }
     if(request.logout === "success") {
       console.log('received logout success');

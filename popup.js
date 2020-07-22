@@ -1,11 +1,11 @@
-// $(document).ready(function() {
-//   document.getElementById("headlineView").addEventListener("click", sendSignIn);
-// });
+$(document).ready(function() {
+  chrome.runtime.sendMessage({message: "popupRequestCredits"});
+  document.getElementById("getmoreCredits").addEventListener("click", getMoreCredits);
+});
 
-// function sendSignIn(){
-//   chrome.runtime.sendMessage({message: "popupButtonClicked"});
-//   console.log('popupButtonClicked sent!')
-// }
+function getMoreCredits(){
+  chrome.runtime.sendMessage({message: "getMoreCredits"});
+}
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -21,5 +21,3 @@ chrome.runtime.onMessage.addListener(
   	}
   }
 );
-
-chrome.runtime.sendMessage({message: "popupRequestCredits"});

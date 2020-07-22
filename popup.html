@@ -6,19 +6,43 @@
           background-color: lightblue;
         },*/
         button {
-          height: 60px;
+          height: 200px;
           width: 100px;
           outline: none;
-          background-color: coral;
+          background-color: #E06666;
         }
+
+        img {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          width: 50%;
+          padding-bottom: 20px
+        }
+
+        #message {
+          font-size: 16px;
+          padding-bottom: 10px;
+          font: Georgia;
+        }
+
+        #getmoreCredits {
+          height: 50px;
+        }
+
+
+
     </style>
     <script src="jquery.js"></script>
     <script src='popup.js'></script>
   </head>
   <body style="width:150px;">
+    <div id='title'>
+      <img src="readr_logo.png">
+    </div>
     <div id='message'>You have x credits</div>
-<!--     <div>
-        <button id = "headlineView" style="width:100%">Read</button>
-    </div> -->
+    <div>
+        <button id = "getmoreCredits" style="width:100%">Get more credits!</button>
+    </div>
 </body>
 </html>

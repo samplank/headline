@@ -1,15 +1,19 @@
+$(document).ready(function() {
+  chrome.runtime.sendMessage({message: "loginRequestCredits"});
+  console.log('document ready')
+});
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     console.log(request);
-    if (request.num_credits > 0) {
+    if (request.is_read && request.num_credits > 0) {
 
       if (location.href.includes("nytimes.com")) {
         var nytSignIn = document.getElementById('email');
         if (nytSignIn) {
-          chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt'});
+          // chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt'});
+          limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt'}), 500);
         }
-
-
       } else if (location.href.includes("washingtonpost.com")) {
         // var wapoSignIn = $('a[href*="washingtonpost.com/subscribe/signin/"]').get(0);
 
@@ -71,4 +75,26 @@ chrome.runtime.onMessage.addListener(
   }
 );
 
-chrome.runtime.sendMessage({message: "loginRequestCredits"});
+function limiter(fn, wait){
+    let isCalled = false,
+        calls = [];
+
+    let caller = function(){
+        if (calls.length && !isCalled){
+            isCalled = true;
+            calls.shift().call();
+            setTimeout(function(){
+                isCalled = false;
+                caller();
+            }, wait);
+        }
+    };
+
+    return function(){
+        calls.push(fn.bind(this, ...arguments));
+        // let args = Array.prototype.slice.call(arguments);
+        // calls.push(fn.bind.apply(fn, [this].concat(args)));
+
+        caller();
+    };
+}

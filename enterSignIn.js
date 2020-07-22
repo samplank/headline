@@ -48,10 +48,16 @@ chrome.runtime.onMessage.addListener(
       if (location.href.includes("washingtonpost.com")) {
         console.log('onwapo');
 
+
+
         MutationObserverUser = window.MutationObserver || window.WebKitMutationObserver;
 
         var observerUser = new MutationObserverUser(function(mutations, observer) {
             // fired when a mutation occurs
+
+            // escape the problem where the sign in gets stuck
+            var usw_background = document.getElementById("USW");
+            usw_background.click();
 
             var enterUsername = document.getElementById("username");
 
@@ -140,13 +146,13 @@ chrome.runtime.onMessage.addListener(
 
       var observerSignOut = new MutationObserverSignOut(function(mutations, observer) {
 
-        var existsMasthead = document.getElementById("masthead-bar-one");
+        var existsLogIn = findButtonbyTextContent("Log in");
 
-        if(existsMasthead) {
+        if(existsLogIn) {
           observerSignOut.disconnect();
 
           chrome.runtime.sendMessage({logout: "success"});
-          console.log('existsMasthead')
+          console.log('existsLogIn')
           // location.reload()
         }
 
@@ -161,6 +167,14 @@ chrome.runtime.onMessage.addListener(
       setTimeout(function(){
          window.location.reload(1);
       }, 20000);
+
+      function findButtonbyTextContent(text) {
+        var buttons = document.querySelectorAll('button');
+        for (var i=0, l=buttons.length; i<l; i++) {
+          if (buttons[i].firstChild.nodeValue == text)
+            return buttons[i];
+        }  
+      }
 
     }
 

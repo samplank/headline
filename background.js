@@ -1,11 +1,13 @@
 var startSignIn = false;
+var inProgress = false;
 var isLoggedIn = false;
 var signOutComplete = false;
+var isPaid = true;
 var currentSite;
 var signOutTab;
 
 chrome.runtime.onInstalled.addListener(function() {
-  chrome.storage.sync.set({credits: 10});
+  chrome.storage.sync.set({credits: 4});
 });
 
 // click on the icon which will click the appropriate login button
@@ -24,28 +26,29 @@ chrome.tabs.onUpdated.addListener(
 
 
     // send message to active tab to begin sign in process, once it has loaded (for WaPo and Atlantic)
-    if (changeInfo.status == "complete" && startSignIn == true) {
+    if ((currentSite == 'wapo' || currentSite == 'atlantic') && changeInfo.status == "complete" && startSignIn == true) {
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         var activeTab = tabs[0];
         chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in"});
-        startSignIn = false;
+        isPaid = false;
       });
     }
 
     // logout in a background tab
     if (changeInfo.status == "complete" && isLoggedIn == true) {
-      if (currentSite == 'nytimes') {
+      
+      isLoggedIn = false;
+      
+      if (currentSite == 'nyt') {
         chrome.tabs.create({url: 'https://myaccount.nytimes.com/auth/logout', active: false}, function(tab) {
           signOutTab = tab.id;
         });
-        isLoggedIn = false;
       }
 
       if (currentSite == 'wapo') {
         chrome.tabs.create({url: 'https://www.washingtonpost.com/subscribe/signin/?action=signout', active: false}, function(tab){
             signOutTab = tab.id;
         });
-        isLoggedIn = false;
       }
 
       if (currentSite == 'atlantic') {
@@ -53,13 +56,12 @@ chrome.tabs.onUpdated.addListener(
           signOutTab = tab.id;
 
         });
-        isLoggedIn = false;
       }
 
     }
     // sign out of the Atlantic in the new tab
     if (changeInfo.status == "complete" && signOutTab == tabId) {
-      if (currentSite == "nytimes") {
+      if (currentSite == "nyt") {
         chrome.tabs.sendMessage(signOutTab, {"message": "signOutNYT"});
 
       }
@@ -81,15 +83,21 @@ chrome.runtime.onMessage.addListener(
     //start signin listener (from popup)
     if(request.message === 'popupButtonClicked') {
 
+      chrome.browserAction.setIcon({path: "icon_reading.png"});
+
+      currentSite = request.site;
+
       // NYT doesn't load a new page, so send start_sign_in here
-      if (request.site == 'nyt') {
+      if (currentSite == 'nyt') {
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
           var activeTab = tabs[0];
           chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in"});
+          isPaid = false;
         });
+      } else if (currentSite == 'wapo' || currentSite == 'atlantic') {
+        startSignIn = true;
       }
 
-      startSignIn = true;
     }
 
     if(request.message === "popupRequestCredits") {
@@ -102,15 +110,22 @@ chrome.runtime.onMessage.addListener(
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         var activeTab = tabs[0];
         chrome.storage.sync.get(['credits'], function(result) {
-          chrome.tabs.sendMessage(activeTab.id, {num_credits: result.credits});
+          chrome.tabs.sendMessage(activeTab.id, {num_credits: result.credits, is_read: true});
         });
+      });
+    }
+
+    if(request.message === "getMoreCredits") {
+      chrome.storage.sync.get(['credits'], function(result) {
+        console.log('Value currently is ' + result.credits);
+        chrome.storage.sync.set({credits: result.credits + 5});
       });
     }
 
     // logout listeners
     if(request.site === "nytimesLogin") {
       isLoggedIn = true;
-      currentSite = 'nytimes';
+      currentSite = 'nyt';
     }
     if(request.site === "wapoLogin") {
       isLoggedIn = true;
@@ -120,10 +135,11 @@ chrome.runtime.onMessage.addListener(
       isLoggedIn = true;
       currentSite = 'atlantic';
     }
-    if (request.site === "nytimesLogin" || request.site === "wapoLogin" || request.site === "atlanticLogin"){
+    if (isPaid == false && (request.site === "nytimesLogin" || request.site === "wapoLogin" || request.site === "atlanticLogin")){
       chrome.storage.sync.get(['credits'], function(result) {
         console.log('Value currently is ' + result.credits);
         chrome.storage.sync.set({credits: result.credits - 1});
+        isPaid = true;
       });
     }
     if(request.logout === "success") {
@@ -131,6 +147,8 @@ chrome.runtime.onMessage.addListener(
       console.log(signOutTab);
       chrome.tabs.remove(signOutTab);
       signOutTab = null;
+      startSignIn = false;
+      chrome.browserAction.setIcon({path: "icon_background.png"});
     }
 
   }

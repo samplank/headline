@@ -119,6 +119,7 @@ chrome.runtime.onMessage.addListener(
       chrome.storage.sync.get(['credits'], function(result) {
         console.log('Value currently is ' + result.credits);
         chrome.storage.sync.set({credits: result.credits + 5});
+        chrome.runtime.sendMessage({num_credits: result.credits + 5});
       });
     }
 

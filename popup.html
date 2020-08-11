@@ -40,9 +40,74 @@
     <div id='title'>
       <img src="readr_logo.png">
     </div>
-    <div id='message'>You have x credits</div>
-    <div>
-        <button id = "getmoreCredits" style="width:100%">Get more credits!</button>
+    <div id='authenticated'>
+      <div id='message'>You have x credits</div>
+      <div>
+          <button id = "getmoreCredits" style="width:100%">Get more credits!</button>
+      </div>
     </div>
+
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-analytics.js"></script>
+    <script src="/__/firebase/7.17.2/firebase-auth.js"></script>
+    
+    <script src="/__/firebase/init.js"></script>
+
+
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyABp4MFCQRKq_rUFX4y2oUIMhpthxvIzH0",
+        authDomain: "readr-d9acb.firebaseapp.com",
+        databaseURL: "https://readr-d9acb.firebaseio.com",
+        projectId: "readr-d9acb",
+        storageBucket: "readr-d9acb.appspot.com",
+        messagingSenderId: "206875987817",
+        appId: "1:206875987817:web:cc60adde1d1208a2b577f8",
+        measurementId: "G-MP9LJ52D3Y"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
+
+      var uiConfig = {
+        callbacks: {
+          signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+            // User successfully signed in.
+            // Return type determines whether we continue the redirect automatically
+            // or whether we leave that to developer to handle.
+            return true;
+          },
+          uiShown: function() {
+            // The widget is rendered.
+            // Hide the loader.
+          }
+        },
+        // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
+        signInFlow: 'popup',
+        signInSuccessUrl: '#',
+        signInOptions: [
+          // Leave the lines as is for the providers you want to offer your users.
+          firebase.auth.GoogleAuthProvider.PROVIDER_ID
+        ]
+      };
+
+      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+      firebase.auth().onAuthStateChanged(function(user) {
+        if(user) {
+          //someone has just logged in
+        } else {
+          //someone has just logged out
+        }
+      });
+
+
+    </script>
 </body>
 </html>

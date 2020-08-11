@@ -1,13 +1,12 @@
 $(document).ready(function() {
   chrome.runtime.sendMessage({message: "loginRequestCredits"});
-  console.log('document ready')
 });
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     console.log(request);
     if (request.is_read && request.num_credits > 0) {
-
+      console.log(location.href);
       if (location.href.includes("nytimes.com")) {
         var nytSignIn = document.getElementById('email');
         if (nytSignIn) {
@@ -15,13 +14,15 @@ chrome.runtime.onMessage.addListener(
           limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt'}), 500);
         }
       } else if (location.href.includes("washingtonpost.com")) {
+        console.log(location.href);
         // var wapoSignIn = $('a[href*="washingtonpost.com/subscribe/signin/"]').get(0);
 
         MutationObserverWaPo = window.MutationObserver || window.WebKitMutationObserver;
 
         var observerwapoSignIn= new MutationObserverWaPo(function(mutations, observer) {
 
-          var wapoSignIn = document.getElementById('PAYWALL_V2_LOGIN');
+          var wapoSignIn = document.getElementById('PAYWALL_V2_SIGN_IN');
+          console.log(document);
 
           // password field has appeared
           if(wapoSignIn) {
@@ -70,6 +71,31 @@ chrome.runtime.onMessage.addListener(
           //...
         });              
       	
+      } else if (location.href.includes("newyorker.com")) {
+        console.log('waiting for click');
+
+        MutationObserverNewyorker = window.MutationObserver || window.WebKitMutationObserver;
+
+        var observernewyorkerSignIn= new MutationObserverNewyorker(function(mutations, observer) {
+
+          var newyorkerSignInPresent = $(":contains(You’ve read your last complimentary article.)").get(0);
+
+          // password field has appeared
+          if(newyorkerSignInPresent) {
+            var newyorkerSignIn = $('a[href*="https://account.newyorker.com/"]').get(0);
+            newyorkerSignIn.click();
+            observernewyorkerSignIn.disconnect();
+            chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'newyorker'});
+          }
+        });
+
+        observernewyorkerSignIn.observe(document, {
+          subtree: true,
+          attributes: true
+          //...
+        });                           
+
+
       }
     }
   }

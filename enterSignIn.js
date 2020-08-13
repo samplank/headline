@@ -56,10 +56,6 @@ chrome.runtime.onMessage.addListener(
         var observerUser = new MutationObserverUser(function(mutations, observer) {
             // fired when a mutation occurs
 
-            // escape the problem where the sign in gets stuck
-            var usw_background = document.getElementById("USW");
-            usw_background.click();
-
             var enterUsername = document.getElementById("username");
 
 

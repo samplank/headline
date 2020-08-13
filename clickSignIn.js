@@ -4,9 +4,7 @@ $(document).ready(function() {
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    console.log(request);
     if (request.is_read && request.num_credits > 0) {
-      console.log(location.href);
       if (location.href.includes("nytimes.com")) {
         var nytSignIn = document.getElementById('email');
         if (nytSignIn) {
@@ -14,7 +12,6 @@ chrome.runtime.onMessage.addListener(
           limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt'}), 500);
         }
       } else if (location.href.includes("washingtonpost.com")) {
-        console.log(location.href);
         // var wapoSignIn = $('a[href*="washingtonpost.com/subscribe/signin/"]').get(0);
 
         MutationObserverWaPo = window.MutationObserver || window.WebKitMutationObserver;
@@ -22,11 +19,9 @@ chrome.runtime.onMessage.addListener(
         var observerwapoSignIn= new MutationObserverWaPo(function(mutations, observer) {
 
           var wapoSignIn = document.getElementById('PAYWALL_V2_SIGN_IN');
-          console.log(document);
 
           // password field has appeared
           if(wapoSignIn) {
-            console.log(wapoSignIn);
             wapoSignIn.click();
             observerwapoSignIn.disconnect();
             chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'wapo'});
@@ -42,7 +37,6 @@ chrome.runtime.onMessage.addListener(
       } else if (location.href.includes("theatlantic.com")) {
 
         var atlanticSignIn = $(":contains(Already a subscriber?)").get(0);
-        console.log(atlanticSignIn);
 
       	// var atlanticSignIn = $('a[href*="accounts.theatlantic.com/login/"]').get(0);
        //  if (atlanticSignIn) {
@@ -72,7 +66,6 @@ chrome.runtime.onMessage.addListener(
         });              
       	
       } else if (location.href.includes("newyorker.com")) {
-        console.log('waiting for click');
 
         MutationObserverNewyorker = window.MutationObserver || window.WebKitMutationObserver;
 

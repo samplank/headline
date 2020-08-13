@@ -1,3 +1,4 @@
+var isAuth = false;
 var startSignIn = false;
 var inProgress = false;
 var isLoggedIn = false;
@@ -6,6 +7,24 @@ var isPaid = true;
 var currentSite;
 var signOutTab;
 
+var config = {
+  apiKey: 'AIzaSyABp4MFCQRKq_rUFX4y2oUIMhpthxvIzH0',
+  databaseURL: 'https://readr-d9acb.firebaseio.com',
+  storageBucket: 'readr-d9acb.appspot.com'
+};
+firebase.initializeApp(config);
+
+chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
+  var credential = firebase.auth.GoogleAuthProvider.credential(null, token);
+  firebase.auth().signInWithCredential(credential);
+  if (token) {
+    console.log(token);
+    isAuth = true;
+    console.log(isAuth);
+  }
+});
+
+//--------------------------//
 chrome.runtime.onInstalled.addListener(function() {
   chrome.storage.sync.set({credits: 4});
 });

@@ -1,9 +1,15 @@
 {
+  "key": "hiaogbllpciidkigdnidimfnomhndfaj",
   "manifest_version": 2,
-  "name": "Headline",
+  "name": "Readr",
   "version": "0.1",
   "background": {
-    "scripts": ["background.js"]
+    "page": "background.html",
+    "persistent": true
+    // ,
+    // "scripts": [
+    //   "background.js"
+    // ]
   },
   "content_scripts": [
     {
@@ -19,6 +25,17 @@
     "default_popup": "popup.html"
   },
   "permissions": [
-    "storage"
-  ]
+    "storage",
+    "identity"
+  ],
+  "content_security_policy":"script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
+  "oauth2": {
+    "client_id": "305924391368-9s1sohaj021bert89f4jf2ogn53lira0.apps.googleusercontent.com"
+    ,
+    "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile"
+    ]
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnLDz4MaAzh2NGewcHaaJNGMrqblLdOxY1WleEUgQJhDFZeQrK5jCQxml/65utvz7mzjK/3yd5jI0NO0Lz7B5ufgrv3LxjgHlosLoVep7z4eMoE1sUGtWKX55KCrPic/aAXpgPk+f+L8+dgnWH57IeRp33zVBPCnMfNKjmpiKwZ0YZN/QVws72ojSrX/O9gWLk3C3rgWv8ao9xoujKRUoz/pkes73OohtbgsCzE3gu06spizSU6r9lCR5V26cobayEcIurh3MrvtuJfDQ0FeC3kWb7YAXf/H+wnV0xFOSpRRiWvMWmgNpzVBSbEyvvdoIuPghYYy7wrBHEFo4FiCC+QIDAQAB"
 }

@@ -1,17 +1,46 @@
 $(document).ready(function() {
   chrome.runtime.sendMessage({message: "loginRequestCredits"});
-  console.log(location);
 });
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.is_read && request.num_credits > 0) {
       if (location.href.includes("nytimes.com")) {
-        var nytSignIn = document.getElementById('email');
-        if (nytSignIn) {
-          // chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt'});
-          limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt', article: location.href}), 500);
-        }
+        // var nytSignIn = document.getElementById('email');
+          var nytSignIn = $('a[href*="https://myaccount.nytimes.com/auth/login?response_type=cookie&client_id=mpc&redirect_uri="]').get(0);
+          console.log(nytSignIn);
+
+           MutationObserverNYT = window.MutationObserver || window.WebKitMutationObserver;
+
+            var observernytSignIn= new MutationObserverNYT(function(mutations, observer) {
+
+              var nytSignIn = $('a[href*="https://myaccount.nytimes.com/auth/login?response_type=cookie&client_id=mpc&redirect_uri="]').get(0);
+
+
+              // password field has appeared
+              if(nytSignIn) {
+                nytSignIn.click();
+                observernytSignIn.disconnect();
+                limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt', article: location.href}), 500);
+              }
+            });
+
+            observernytSignIn.observe(document, {
+              subtree: true,
+              attributes: true
+              //...
+            });              
+
+
+
+
+
+
+        // if (nytSignIn) {
+        //   // chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt'});
+        //   nytSignIn.click();
+        //   limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt', article: location.href}), 500);
+        // }
       } else if (location.href.includes("washingtonpost.com")) {
         // var wapoSignIn = $('a[href*="washingtonpost.com/subscribe/signin/"]').get(0);
 

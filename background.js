@@ -43,7 +43,7 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
         });
 
         // send message to active tab to begin sign in process, once it has loaded (for WaPo and Atlantic)
-        if ((currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') && changeInfo.status == "complete" && startSignIn == true) {
+        if ((currentSite == 'nyt' ||currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') && changeInfo.status == "complete" && startSignIn == true) {
           chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             var activeTab = tabs[0];
             chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in"});
@@ -120,13 +120,7 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
           currentSite = request.site;
 
           // NYT doesn't load a new page, so send start_sign_in here
-          if (currentSite == 'nyt') {
-            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-              var activeTab = tabs[0];
-              chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in"});
-              isPaid = false;
-            });
-          } else if (currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') {
+          if (currentSite == 'nyt' ||currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') {
             startSignIn = true;
           }
 

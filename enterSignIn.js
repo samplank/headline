@@ -7,41 +7,23 @@ chrome.runtime.onMessage.addListener(
 
       if (location.href.includes("nytimes.com")) {
 
-        enterUsername = document.getElementById("email");
+        var enterUsername = document.getElementById("username");
+        var enterPassword = document.getElementById("password");
+
 
         // username field has appeared
         if(enterUsername) {
 
               enterUsername.setAttribute("value", "planetej@hotmail.com");
-
               enterUsername.dispatchEvent(new Event("change", { bubbles: true }));
 
-              var continueButton = $('button:contains("Continue")').first();
-              continueButton.click();
+              enterPassword.setAttribute("value", "news55boy");
+              enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
 
-              MutationObserverPass = window.MutationObserver || window.WebKitMutationObserver;
+              var signIn = $('button:contains("Log In")').first();
+              signIn.click();
+              chrome.runtime.sendMessage({site: "nytimesLogin"});
 
-              var observerPass = new MutationObserverPass(function(mutations, observer) {
-
-                var enterPassword = document.getElementById("password");
-
-                // password field has appeared
-                if(enterPassword) {
-                  observerPass.disconnect();
-                  enterPassword.setAttribute("value", "news55boy");
-                  enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
-
-                  var signIn = $('button:contains("Log In")').first();
-                  signIn.click();
-                  chrome.runtime.sendMessage({site: "nytimesLogin"});
-                }
-              });
-
-              observerPass.observe(document, {
-                subtree: true,
-                attributes: true
-                //...
-              });              
         }
       }
 

@@ -6,10 +6,6 @@
   "background": {
     "page": "background.html",
     "persistent": true
-    // ,
-    // "scripts": [
-    //   "background.js"
-    // ]
   },
   "content_scripts": [
     {

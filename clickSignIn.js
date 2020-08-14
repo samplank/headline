@@ -1,5 +1,6 @@
 $(document).ready(function() {
   chrome.runtime.sendMessage({message: "loginRequestCredits"});
+  console.log(location);
 });
 
 chrome.runtime.onMessage.addListener(
@@ -9,7 +10,7 @@ chrome.runtime.onMessage.addListener(
         var nytSignIn = document.getElementById('email');
         if (nytSignIn) {
           // chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt'});
-          limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt'}), 500);
+          limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt', article: location.href}), 500);
         }
       } else if (location.href.includes("washingtonpost.com")) {
         // var wapoSignIn = $('a[href*="washingtonpost.com/subscribe/signin/"]').get(0);
@@ -24,7 +25,7 @@ chrome.runtime.onMessage.addListener(
           if(wapoSignIn) {
             wapoSignIn.click();
             observerwapoSignIn.disconnect();
-            chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'wapo'});
+            chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'wapo', article: location.href});
           }
         });
 
@@ -55,7 +56,7 @@ chrome.runtime.onMessage.addListener(
             var atlanticSignIn = $('a[href*="accounts.theatlantic.com/login/"]').get(0);
             atlanticSignIn.click();
             observeratlanticSignIn.disconnect();
-            chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'atlantic'});
+            chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'atlantic', article: location.href});
           }
         });
 
@@ -78,7 +79,7 @@ chrome.runtime.onMessage.addListener(
             var newyorkerSignIn = $('a[href*="https://account.newyorker.com/"]').get(0);
             newyorkerSignIn.click();
             observernewyorkerSignIn.disconnect();
-            chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'newyorker'});
+            chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'newyorker', article: location.href});
           }
         });
 

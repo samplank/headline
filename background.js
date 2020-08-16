@@ -44,8 +44,32 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
 
         // send message to active tab to begin sign in process, once it has loaded (for WaPo and Atlantic)
         if ((currentSite == 'nyt' ||currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') && changeInfo.status == "complete" && startSignIn == true) {
+          
+          //get the login credentials and send them below
+
+          var credentialRef = firebase.database().ref('users/' + userID + '/credentials/' + currentSite);
+
+          credentialRef.once("value").then((snapshot) => {
+            var val = snapshot.val();
+            var auth_email = val.auth_email;
+            var password = val.password;
+          });
+
           chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+
             var activeTab = tabs[0];
+
+            var credentialRef = firebase.database().ref('users/' + userID + '/credentials/' + currentSite);
+
+            credentialRef.once("value").then((snapshot) => {
+              var val = snapshot.val();
+              var auth_email = val.auth_email;
+              var password = val.password;
+
+              chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in", "auth_email": auth_email, "password": password});
+
+            });
+
             chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in"});
             isPaid = false;
           });
@@ -146,6 +170,12 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
             chrome.storage.sync.set({credits: result.credits + 5});
             chrome.runtime.sendMessage({num_credits: result.credits + 5});
 
+            firebase.database()
+                .ref('users')
+                .child(userID)
+                .child('credit_reloads')
+                .set(firebase.database.ServerValue.increment(1))
+
           });
         }
 
@@ -216,7 +246,26 @@ firebase.auth().onAuthStateChanged(function(user) {
         
       } else {
           firebase.database().ref('users/' + userID).set({
-            email: user.email
+            email: user.email,
+            credit_reloads: 0,
+            credentials: {
+              nyt: {
+                auth_email: 'planetej@hotmail.com',
+                password: 'news55boy'
+              },
+              wapo: {
+                auth_email: 'smgplank@gmail.com',
+                password: 'S@mman26'
+              },
+              atlantic: {
+                auth_email: 'samuel1hagen@gmail.com',
+                password: 'baltimore'
+              },
+              newyorker: {
+                auth_email: 'smgplank@gmail.com',
+                password: 'C0w$ontherange'
+              }                            
+            }
         });
       }
     });

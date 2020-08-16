@@ -4,25 +4,22 @@ chrome.runtime.onMessage.addListener(
 
     if(request.message === "start_sign_in") {
       console.log('start_sign_in received');
+      var auth_email = request.auth_email;
+      var password = request.password;
 
       if (location.href.includes("nytimes.com")) {
 
         var enterUsername = document.getElementById("username");
         var enterPassword = document.getElementById("password");
+        var signIn = $('button:contains("Log In")').first();
 
 
         // username field has appeared
         if(enterUsername) {
 
-              enterUsername.setAttribute("value", "planetej@hotmail.com");
-              enterUsername.dispatchEvent(new Event("change", { bubbles: true }));
+          signInDetails(enterUsername, auth_email, enterPassword, password, signIn, clickSignIn);
 
-              enterPassword.setAttribute("value", "news55boy");
-              enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
-
-              var signIn = $('button:contains("Log In")').first();
-              signIn.click();
-              chrome.runtime.sendMessage({site: "nytimesLogin"});
+          chrome.runtime.sendMessage({site: "nytimesLogin"});
 
         }
       }
@@ -44,7 +41,7 @@ chrome.runtime.onMessage.addListener(
             if(enterUsername) {
               observerUser.disconnect();
 
-              enterUsername.setAttribute("value", "smgplank@gmail.com");
+              enterUsername.setAttribute("value", auth_email);
 
               enterUsername.dispatchEvent(new Event("change", { bubbles: true }));
 
@@ -56,14 +53,12 @@ chrome.runtime.onMessage.addListener(
               var observerPass = new MutationObserverPass(function(mutations, observer) {
 
                 var enterPassword = document.getElementById("password");
+                var signIn = $('button')[1];
 
                 if(enterPassword) {
                   observerPass.disconnect();
-                  enterPassword.setAttribute("value", "S@mman26");
-                  enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
+                  signInDetails(enterUsername, auth_email, enterPassword, password, signIn, clickSignIn);
 
-                  var signIn = $('button')[1];
-                  signIn.click();
                   chrome.runtime.sendMessage({site: "wapoLogin"});
                 }
 
@@ -96,14 +91,8 @@ chrome.runtime.onMessage.addListener(
         var signIn = $('button')[1];
         signIn.disabled = false;
         if(enterUsername) {
-          enterUsername.click();
-          enterPassword.click();
+          signInDetails(enterUsername, auth_email, enterPassword, password, signIn, clickSignIn);
 
-          enterUsername.setAttribute("value", "samuel1hagen@gmail.com");
-          enterUsername.dispatchEvent(new Event("change", { bubbles: true }));
-          enterPassword.setAttribute("value", "baltimore");
-          enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
-          signIn.click();
           chrome.runtime.sendMessage({site: "atlanticLogin"});
         }
       }
@@ -115,31 +104,11 @@ chrome.runtime.onMessage.addListener(
         var signIn = $("button").get(3);
         // username field has appeared
         if(enterUsername) {
-          enterUsername.click();
-          enterPassword.click();
+          signInDetails(enterUsername, auth_email, enterPassword, password, signIn, clickSignIn);
 
-          // enterUsername.setAttribute("value", "samuel1hagen@gmail.com");
-          enterUsername.value="smgplank@gmail.com"
-          enterUsername.dispatchEvent(new Event("change", { bubbles: true }));
-          enterPassword.value="C0w$ontherange"
-          enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
-          signIn.click();
           chrome.runtime.sendMessage({site: "newyorkerLogin"});
 
         }
-        // var signIn = $('button')[1];
-        // signIn.disabled = false;
-        // if(enterUsername) {
-        //   enterUsername.click();
-        //   enterPassword.click();
-
-        //   enterUsername.setAttribute("value", "samuel1hagen@gmail.com");
-        //   enterUsername.dispatchEvent(new Event("change", { bubbles: true }));
-        //   enterPassword.setAttribute("value", "baltimore");
-        //   enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
-        //   signIn.click();
-        //   chrome.runtime.sendMessage({site: "atlanticLogin"});
-        // }
       }
 
 
@@ -230,9 +199,9 @@ chrome.runtime.onMessage.addListener(
       var existsUsername = document.getElementById("username");
 
       if(existsUsername) {
-        wait(5000)
+        wait(10000)
         chrome.runtime.sendMessage({logout: "success"});
-        location.reload();
+        // location.reload();
         console.log('existsUsername')
       }
 
@@ -245,9 +214,9 @@ chrome.runtime.onMessage.addListener(
 
         if(existsUsername) {
           observerSignOut.disconnect();
-          wait(5000)
+          wait(10000)
           chrome.runtime.sendMessage({logout: "success"});
-          location.reload();
+          // location.reload();
         }
 
       });
@@ -257,6 +226,10 @@ chrome.runtime.onMessage.addListener(
         attributes: true
         //...
       });
+
+      setTimeout(function(){
+         window.location.reload(1);
+      }, 5000);
 
       //add mutation observer to see if the sign out is complete
     }
@@ -288,4 +261,21 @@ function findElementbyTextContent(eltype, text) {
     if (buttons[i].firstChild.nodeValue == text)
       return buttons[i];
   }  
+}
+
+function signInDetails(enterUsername, auth_email, enterPassword, password, signIn, callback) {
+  enterUsername.value = auth_email
+  enterUsername.dispatchEvent(new Event("change", { bubbles: true }));
+  enterPassword.value = password
+  enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
+  console.log('entering info');
+  callback(signIn);
+}
+
+function clickSignIn(signIn) {
+  console.log('click');
+  signIn.click()
+  setTimeout(() => {
+    signIn.click()
+  }, 500);
 }

@@ -14,33 +14,34 @@ var config = {
 };
 firebase.initializeApp(config);
 
+
 chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
   var credential = firebase.auth.GoogleAuthProvider.credential(null, token);
   firebase.auth().signInWithCredential(credential);
   if (token) {
-    console.log('authenticated');
 
-    //if login successful, enable functionality
+    // chrome.runtime.sendMessage({is_auth: 'authenticated'});
 
-    chrome.runtime.sendMessage({is_auth: 'authenticated'});
-
-    chrome.runtime.onInstalled.addListener(function() {
-      chrome.storage.sync.set({credits: 4});
-    });
-
-    // click on the icon which will click the appropriate login button
+    //background send number of credits
     chrome.browserAction.onClicked.addListener(function(tab) {
-        chrome.storage.sync.get(['credits'], function(result) {
-          chrome.runtime.sendMessage({num_credits: result.credits});
-        });
-    });
+      var creditRef = firebase.database().ref('users/' + userID + '/credits');
+
+      creditRef.once("value").then((snapshot) => {
+        var val = snapshot.val();
+        chrome.runtime.sendMessage({num_credits: val});
+      });   
+    });    
+
 
     chrome.tabs.onUpdated.addListener(
       function(tabId, changeInfo, tab) {
 
-        chrome.storage.sync.get(['credits'], function(result) {
-          chrome.runtime.sendMessage({num_credits: result.credits});
-        });
+        var creditRef = firebase.database().ref('users/' + userID + '/credits');
+
+        creditRef.once("value").then((snapshot) => {
+          var val = snapshot.val();
+          chrome.runtime.sendMessage({num_credits: val});
+        });   
 
         // send message to active tab to begin sign in process, once it has loaded (for WaPo and Atlantic)
         if ((currentSite == 'nyt' ||currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') && changeInfo.status == "complete" && startSignIn == true) {
@@ -151,36 +152,86 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
         }
 
         if(request.message === "popupRequestCredits") {
-          chrome.storage.sync.get(['credits'], function(result) {
-            chrome.runtime.sendMessage({num_credits: result.credits});
+
+          var creditRef = firebase.database().ref('users/' + userID + '/credits');
+
+          creditRef.once("value").then((snapshot) => {
+            var val = snapshot.val();
+            chrome.runtime.sendMessage({num_credits: val});
           });
         }
 
         if(request.message === "loginRequestCredits") {
           chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             var activeTab = tabs[0];
-            chrome.storage.sync.get(['credits'], function(result) {
-              chrome.tabs.sendMessage(activeTab.id, {num_credits: result.credits, is_read: true});
+
+            var creditRef = firebase.database().ref('users/' + userID + '/credits');
+
+            creditRef.once("value").then((snapshot) => {
+              var val = snapshot.val();
+              chrome.tabs.sendMessage(activeTab.id, {num_credits: val, is_read: true});
             });
           });
         }
 
         if(request.message === "getMoreCredits") {
-          chrome.storage.sync.get(['credits'], function(result) {
-            chrome.storage.sync.set({credits: result.credits + 5});
-            chrome.runtime.sendMessage({num_credits: result.credits + 5});
 
-            firebase.database()
-                .ref('users')
-                .child(userID)
-                .child('credit_reloads')
-                .set(firebase.database.ServerValue.increment(1))
+          firebase.database()
+              .ref('users')
+              .child(userID)
+              .child('credits')
+              .set(firebase.database.ServerValue.increment(5),
+                function(error) {
+                    if (error) {
+                      console.log(error);
+                    } else {
+                      var creditRef = firebase.database().ref('users/' + userID + '/credits');
 
-          });
+                      creditRef.once("value").then((snapshot) => {
+                        var val = snapshot.val();
+                        chrome.runtime.sendMessage({num_credits: val});
+                      });                      
+                    }
+                  }
+                  );
+
+          firebase.database()
+              .ref('users')
+              .child(userID)
+              .child('credit_reloads')
+              .set(firebase.database.ServerValue.increment(1))
+
         }
+
 
         if(request.message === "popupRequestAuthentication") {
           chrome.runtime.sendMessage({is_auth: 'authenticated'});
+
+          var userRef = firebase.database().ref('users/' + userID);
+
+          userRef.once("value").then((snapshot) => {
+            if (snapshot.exists()) { 
+               chrome.runtime.sendMessage({is_auth: 'exists user'});
+            } else {
+                chrome.runtime.sendMessage({is_auth: 'new user'});
+            }
+          });
+        }
+
+        if(request.is_credentials === true) {
+          console.log(request);
+
+          firebase.database().ref('users/' + userID + '/credentials').set(
+            {
+              nyt_login: request.nyt_login,
+              nyt_pass: request.nyt_pass,
+              wapo_login: request.wapo_login,
+              wapo_pass: request.wapo_pass,
+              atlantic_login: request.atlantic_login,
+              atlantic_pass: request.atlantic_pass
+            }
+          );
+
         }
 
         // logout listeners
@@ -193,23 +244,35 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
           currentSite = 'wapo';
         }
         if(request.site === "atlanticLogin") {
-          console.log('request.site ' + isLoggedIn);
           isLoggedIn = true;
           currentSite = 'atlantic';
         }
         if(request.site === "newyorkerLogin") {
-          console.log('request.site ' + isLoggedIn);
           isLoggedIn = true;
           currentSite = 'newyorker';
         }
         if (isPaid == false && (request.site === "nytimesLogin" || request.site === "wapoLogin" || request.site === "atlanticLogin" || request.site === "newyorkerLogin")){
-          chrome.storage.sync.get(['credits'], function(result) {
-            chrome.storage.sync.set({credits: result.credits - 1});
-            isPaid = true;
-          });
+          firebase.database()
+              .ref('users')
+              .child(userID)
+              .child('credits')
+              .set(firebase.database.ServerValue.increment(-1),
+                  function(error) {
+                    if (error) {
+                      console.log(error);
+                    } else {
+                      var creditRef = firebase.database().ref('users/' + userID + '/credits');
+
+                      creditRef.once("value").then((snapshot) => {
+                        var val = snapshot.val();
+                        chrome.runtime.sendMessage({num_credits: val});
+                      });                      
+                    }
+                  }
+                )
+          isPaid = true;
         }
         if(request.logout === "success") {
-          console.log('request logout success');
           if (currentSite === 'nyt' || currentSite === 'wapo' || currentSite === 'atlantic') {
             chrome.tabs.remove(signOutTab, function() {
               signOutTab = null;
@@ -239,36 +302,7 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     userID = user.uid
-    var userRef = firebase.database().ref('users/' + userID);
 
-    userRef.once("value").then((snapshot) => {
-      if (snapshot.exists()) { 
-        
-      } else {
-          firebase.database().ref('users/' + userID).set({
-            email: user.email,
-            credit_reloads: 0,
-            credentials: {
-              nyt: {
-                auth_email: 'planetej@hotmail.com',
-                password: 'news55boy'
-              },
-              wapo: {
-                auth_email: 'smgplank@gmail.com',
-                password: 'S@mman26'
-              },
-              atlantic: {
-                auth_email: 'samuel1hagen@gmail.com',
-                password: 'baltimore'
-              },
-              newyorker: {
-                auth_email: 'smgplank@gmail.com',
-                password: 'C0w$ontherange'
-              }                            
-            }
-        });
-      }
-    });
   } else {
     console.log('no user');
   }

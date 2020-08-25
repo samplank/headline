@@ -20,7 +20,7 @@
           padding-bottom: 20px
         }
 
-        #message {
+        #num_credits {
           font-size: 16px;
           padding-bottom: 10px;
           font: Georgia;
@@ -40,11 +40,57 @@
     <div id='title'>
       <img src="readr_logo.png">
     </div>
-    <div id='authenticated' style='display: none;'>
-      <div id='message'>You have x credits</div>
+    <div id='exists_user' style='display: none;'>
+      <div id='num_credits'></div>
       <div>
           <button id = "getmoreCredits" style="width:100%">Get more credits!</button>
       </div>
+    </div>
+    <div id='new_user' style='display: none;'>
+      <i>Hi new readr! Add in your credentials below:</i>
+      <br>
+      <br>
+       <form id='credentials'>
+        <div>
+          <b>New York Times</b>
+        </div>
+        <div>
+          <label for="nyt_login">Login:</label><br>
+          <input type="text" id="nyt_login" name="nyt_login" required><br>
+          <label for="nyt_pass">Password:</label><br>
+          <input type="text" id="nyt_pass" name="nyt_pass" required><br>
+        </div>
+
+        <br>
+
+
+        <div>
+          <b>Washington Post</b>
+        </div>
+        <div>
+          <label for="wapo_login">Login:</label><br>
+          <input type="text" id="wapo_login" name="wapo_login" required><br>
+          <label for="wapo_pass">Password:</label><br>
+          <input type="text" id="wapo_pass" name="wapo_pass" required><br>
+        </div>   
+
+        <br>
+
+        <div>
+          <b>The Atlantic</b>
+        </div>
+        <div>
+          <label for="atlantic_login">Login:</label><br>
+          <input type="text" id="atlantic_login" name="atlantic_login" required><br>
+          <label for="atlantic_pass">Password:</label><br>
+          <input type="text" id="atlantic_pass" name="atlantic_pass" required><br>
+        </div>  
+
+        <br>
+
+        <input type="submit" value="Submit">
+
+      </form>
     </div>
     <div id='not_authenticated'>
       Sign in with Google in the popup window

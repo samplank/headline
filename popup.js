@@ -26,9 +26,9 @@ $(document).ready(function() {
         document.getElementById('not_authenticated').style = "display: none";
 
       } else if (request.is_auth === 'not authenticated') {
-        document.getElementById('exists_user').style = "display: block";
-        document.getElementById('new_user').style = "display: block";
-        document.getElementById('not_authenticated').style = "display: none";
+        document.getElementById('exists_user').style = "display: none";
+        document.getElementById('new_user').style = "display: none";
+        document.getElementById('not_authenticated').style = "display: block";
 
       }
 
@@ -49,24 +49,20 @@ $(document).ready(function() {
     form.addEventListener('submit', function (evt) {
         evt.preventDefault();
         
-        var nyt_login = document.getElementById("nyt_login").value;
-        var nyt_pass = document.getElementById("nyt_pass").value;
-        var wapo_login = document.getElementById("wapo_login").value;
-        var wapo_pass = document.getElementById("wapo_pass").value;
-        var atlantic_login = document.getElementById("atlantic_login").value;
-        var atlantic_pass = document.getElementById("atlantic_pass").value;
+        var nyt_login = document.getElementById("license").value;
         
         chrome.runtime.sendMessage(
           {
             is_credentials: true,
-            nyt_login: nyt_login,
-            nyt_pass: nyt_pass,
-            wapo_login: wapo_login,
-            wapo_pass: wapo_pass,
-            atlantic_login: atlantic_login,
-            atlantic_pass: atlantic_pass
+            license: license
           }
         );
+
+        document.getElementById('exists_user').style = "display: block";
+        document.getElementById('new_user').style = "display: none";
+        document.getElementById('not_authenticated').style = "display: none";
+
+        chrome.runtime.sendMessage({message: "popupRequestCredits"});
 
 
     })

@@ -3,6 +3,7 @@ var inProgress = false;
 var isLoggedIn = false;
 var signOutComplete = false;
 var isPaid = true;
+var hasLicense;
 var currentSite;
 var signOutTab;
 var userID;
@@ -20,7 +21,42 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
   firebase.auth().signInWithCredential(credential);
   if (token) {
 
-    // chrome.runtime.sendMessage({is_auth: 'authenticated'});
+    console.log('hastoken');
+
+    var usersRef = firebase.database().ref('users');
+
+    console.log(userID);
+
+    firebase.database().ref().child("users").child(userID).on("value", function(snapshot) {
+
+    // usersRef.once("value").then((snapshot) => {
+
+      //check if it's a new user
+      console.log(snapshot.val())
+      if (!snapshot.val()) {
+        console.log('doesnt exist')
+
+        var credRef = firebase.database().ref('hash');
+
+        //pull a set of credentials
+        credRef.limitToFirst(1).once('value').then(snapshot => {
+          var creds;
+          snapshot.forEach(function(snapshot2) {
+            creds = snapshot2.val();
+          });
+
+
+          //assign the credentials to the user
+          firebase.database().ref('users/' + userID).set(
+            {
+              credentials: creds,
+              credits: 5,
+              credit_reloads: 0
+            }
+          )              
+        });
+      }
+    });
 
     //background send number of credits
     chrome.browserAction.onClicked.addListener(function(tab) {
@@ -43,7 +79,7 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
           chrome.runtime.sendMessage({num_credits: val});
         });   
 
-        // send message to active tab to begin sign in process, once it has loaded (for WaPo and Atlantic)
+        // send message to active tab to begin sign in process, once it has loaded
         if ((currentSite == 'nyt' ||currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') && changeInfo.status == "complete" && startSignIn == true) {
           
           //get the login credentials and send them below
@@ -53,7 +89,7 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
           credentialRef.once("value").then((snapshot) => {
             var val = snapshot.val();
             var auth_email = val.auth_email;
-            var password = val.password;
+            var password = val.pass;
           });
 
           chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -65,7 +101,7 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
             credentialRef.once("value").then((snapshot) => {
               var val = snapshot.val();
               var auth_email = val.auth_email;
-              var password = val.password;
+              var password = val.pass;
 
               chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in", "auth_email": auth_email, "password": password});
 
@@ -221,16 +257,23 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
         if(request.is_credentials === true) {
           console.log(request);
 
-          firebase.database().ref('users/' + userID + '/credentials').set(
-            {
-              nyt_login: request.nyt_login,
-              nyt_pass: request.nyt_pass,
-              wapo_login: request.wapo_login,
-              wapo_pass: request.wapo_pass,
-              atlantic_login: request.atlantic_login,
-              atlantic_pass: request.atlantic_pass
-            }
-          );
+
+          var licenseKey = request.license;
+
+          checkNewLicense(licenseKey);
+
+          // var licenseRef = firebase.database().ref('hash/' + request.license);
+
+
+          // nyt_passRef.once("value").then((snapshot) => {
+          //   var val = snapshot.val();
+          //   firebase.database().ref('users/' + userID + '/credentials/nyt').set(
+          //       {
+          //           auth_email: request.nyt_login,
+          //           pass: val
+          //       }
+          //     )
+          // }); 
 
         }
 
@@ -307,5 +350,115 @@ firebase.auth().onAuthStateChanged(function(user) {
     console.log('no user');
   }
 });
+
+if (!userID) {
+  chrome.runtime.onMessage.addListener(
+      function(request, sender, sendResponse) {
+        if(request.message === "popupRequestAuthentication") {
+          chrome.runtime.sendMessage({is_auth: 'not authenticated'});
+        }
+      }
+    );
+}
+
+
+function checkExistingLicense() {
+  
+  var hasLicense;
+
+  chrome.storage.sync.get("key", function (res) {
+    if (typeof res.key === "undefined") {
+      // unActivatedContainer.style.display = "block";
+      console.log('Not found');
+    } else {
+      fetch("https://api.gumroad.com/v2/licenses/verify", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          product_permalink: "https://gumroad.com/l/cPZlx",
+          license_key: res.key,
+          increment_uses_count: false,
+        }),
+      })
+        .then((res) => res.json())
+        .then(function (data) {
+          if (
+            data.success &&
+            data.purchase.refunded === false &&
+            data.purchase.chargebacked === false
+          ) {
+            // activatedContainer.style.display = "block";
+            hasLicense = true;
+          } else {
+            // unActivatedContainer.style.display = "block";
+            hasLicense = false;
+
+          }
+        })
+        .catch(function (err) {
+          // unActivatedContainer.style.display = "block";
+          hasLicense = false;
+        });
+    }
+  });
+
+  return hasLicense;
+
+}
+
+function checkNewLicense(licenseKey) {
+  button.addEventListener("click", function () {
+    
+      fetch("https://api.gumroad.com/v2/licenses/verify", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          product_permalink: "https://api.gumroad.com/v2/licenses/verify",
+          license_key: licenseKey,
+          increment_uses_count: false,
+        }),
+      })
+        .then((res) => res.json())
+
+        .then(function (data) {
+          if (
+            data.success &&
+            data.purchase.refunded === false &&
+            data.purchase.chargebacked === false
+          ) {
+            chrome.storage.sync.set({ key: data.purchase.license_key });
+
+            firebase.database().ref('users/' + userID + '/credits').set(
+              50
+            )
+
+            //go to hash in the database and pull the first login credentials 
+
+
+
+
+
+
+
+            checkExistingLicense();
+          } else {
+            // unActivatedContainer.style.display = "block";
+            // errorMessage.style.display = "block";
+
+          }
+        })
+        .catch(function (err) {
+          // errorMessage.style.display = "block";
+
+        });
+    
+  });
+}
 
 //--------------------------//

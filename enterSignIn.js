@@ -1,11 +1,10 @@
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    console.log(request);
 
     if(request.message === "start_sign_in") {
-      console.log('start_sign_in received');
       var auth_email = request.auth_email;
       var password = request.password;
+      var currentArticle = request.current_article;
 
       if (location.href.includes("nytimes.com")) {
 
@@ -26,9 +25,6 @@ chrome.runtime.onMessage.addListener(
 
 
       if (location.href.includes("washingtonpost.com")) {
-        console.log('onwapo');
-
-
 
         MutationObserverUser = window.MutationObserver || window.WebKitMutationObserver;
 
@@ -98,7 +94,7 @@ chrome.runtime.onMessage.addListener(
       }
 
       if (location.href.includes("newyorker.com")) {
-        console.log('on new yorker');
+
         var enterUsername = document.getElementById("account-sign-in-page-form-text-field-email");
         var enterPassword = document.getElementById("account-sign-in-page-form-text-field-password");
         var signIn = $("button").get(3);
@@ -116,13 +112,11 @@ chrome.runtime.onMessage.addListener(
     }
 
     if( request.message === "signOutNYT" ) { 
-      console.log('received signOutNYT')
 
       var existsMasthead = document.getElementById("masthead-bar-one");
 
       if(existsMasthead) {
         chrome.runtime.sendMessage({logout: "success"});
-        console.log('existsMasthead')
 
       }
 
@@ -136,8 +130,6 @@ chrome.runtime.onMessage.addListener(
           observerSignOut.disconnect();
 
           chrome.runtime.sendMessage({logout: "success"});
-          console.log('existsLogIn')
-          // location.reload()
         }
 
       });
@@ -168,7 +160,6 @@ chrome.runtime.onMessage.addListener(
       var observerSignOut = new MutationObserverSignOut(function(mutations, observer) {
 
         var existsSignIn = Math.max($('button:contains("Sign in")').length, existsSignIn = $('button:contains("sign in")').length) !== 0;
-        console.log(existsSignIn);
 
         if(existsSignIn) {
           observerSignOut.disconnect();
@@ -193,7 +184,6 @@ chrome.runtime.onMessage.addListener(
 
     if( request.message === "signOutAtlantic" ) {
       var signOut = $('button:contains("Sign out")').first();
-      console.log(signOut);
       signOut.click();
 
       var existsUsername = document.getElementById("username");
@@ -201,8 +191,6 @@ chrome.runtime.onMessage.addListener(
       if(existsUsername) {
         wait(10000)
         chrome.runtime.sendMessage({logout: "success"});
-        // location.reload();
-        console.log('existsUsername')
       }
 
 
@@ -235,9 +223,7 @@ chrome.runtime.onMessage.addListener(
     }
 
     if( request.message === "signOutNewYorker" ) {
-      console.log('signoutnewyorker');
       var signOut = $('button:contains("Sign out")').get(0);
-      console.log(signOut);
       signOut.click();
       chrome.runtime.sendMessage({logout: "success"});
 
@@ -268,14 +254,19 @@ function signInDetails(enterUsername, auth_email, enterPassword, password, signI
   enterUsername.dispatchEvent(new Event("change", { bubbles: true }));
   enterPassword.value = password
   enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
-  console.log('entering info');
   callback(signIn);
 }
 
 function clickSignIn(signIn) {
-  console.log('click');
   signIn.click()
   setTimeout(() => {
     signIn.click()
   }, 500);
 }
+
+
+
+
+
+
+

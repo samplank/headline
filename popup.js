@@ -6,15 +6,18 @@ $(document).ready(function() {
   var form = document.getElementById("credentials");
 
   $('body').on('click', 'a', function(){
-    chrome.tabs.create({url: $(this).attr('href')});
-    return false;
-   });
+   try {
+     chrome.tabs.create({url: $(this).attr('href')});
+     return false;
+   } catch(err) {
+    console.log(err);
+   }
+  });
 
   chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
       // var authenticated_div = document.getElementById('authenticated');
       // var notauthenticated_div = document.getElementById('not_authenticated');
-      console.log(request);
 
       var num_credits = document.getElementById("num_credits");
       
@@ -49,8 +52,7 @@ $(document).ready(function() {
         console.log('credits received')
         var credits = request.num_credits;
           // var message = document.getElementById("message");
-          console.log(num_credits);
-          num_credits.innerHTML = "You have " + credits + " credits";
+          num_credits.innerHTML = credits + " credits left";
         }
     }
   );

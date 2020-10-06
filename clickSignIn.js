@@ -6,30 +6,29 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.is_read && request.num_credits > 0) {
       if (location.href.includes("nytimes.com")) {
-        // var nytSignIn = document.getElementById('email');
-          var nytSignIn = $('a[href*="https://myaccount.nytimes.com/auth/login?response_type=cookie&client_id=mpc&redirect_uri="]').get(0);
-          console.log(nytSignIn);
+        var nytSignInClick = $('a[href*="https://myaccount.nytimes.com/auth/login?response_type="]').get(0);
+        var isPaywall = document.getElementById("gateway-content");
 
-           MutationObserverNYT = window.MutationObserver || window.WebKitMutationObserver;
+        MutationObserverNYT = window.MutationObserver || window.WebKitMutationObserver;
 
-            var observernytSignIn= new MutationObserverNYT(function(mutations, observer) {
+        var observernytSignIn = new MutationObserverNYT(function(mutations, observer) {
 
-              var nytSignIn = $('a[href*="https://myaccount.nytimes.com/auth/login?response_type=cookie&client_id=mpc&redirect_uri="]').get(0);
+          var nytSignInClick = $('a[href*="https://myaccount.nytimes.com/auth/login?response_type="]').get(0);
+          var isPaywall = document.getElementById("gateway-content");
+          
+          // password field has appeared
+          if(nytSignInClick && isPaywall) {
+            nytSignInClick.click();
+            observernytSignIn.disconnect();
+            limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt', article: location.href, nyt_flag: 'click_login'}), 500);             
+          }
+        });
 
-
-              // password field has appeared
-              if(nytSignIn) {
-                nytSignIn.click();
-                observernytSignIn.disconnect();
-                limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt', article: location.href}), 500);
-              }
-            });
-
-            observernytSignIn.observe(document, {
-              subtree: true,
-              attributes: true
-              //...
-            });              
+        observernytSignIn.observe(document, {
+          subtree: true,
+          attributes: true
+          //...
+        });              
 
 
 
@@ -67,6 +66,7 @@ chrome.runtime.onMessage.addListener(
       } else if (location.href.includes("theatlantic.com")) {
 
         var atlanticSignIn = $(":contains(Already a subscriber?)").get(0);
+        var freeArticlesRemaining = $(":contains(We hope you've enjoyed your free articles.)").get(0);
 
       	// var atlanticSignIn = $('a[href*="accounts.theatlantic.com/login/"]').get(0);
        //  if (atlanticSignIn) {
@@ -79,9 +79,10 @@ chrome.runtime.onMessage.addListener(
         var observeratlanticSignIn= new MutationObserverAtlantic(function(mutations, observer) {
 
           var atlanticSignInPresent = $(":contains(Already a subscriber?)").get(0);
+          var freeArticlesRemaining = $(":contains(We hope you've enjoyed your free articles.)").get(0);
 
           // password field has appeared
-          if(atlanticSignInPresent) {
+          if(atlanticSignInPresent && freeArticlesRemaining) {
             var atlanticSignIn = $('a[href*="accounts.theatlantic.com/login/"]').get(0);
             atlanticSignIn.click();
             observeratlanticSignIn.disconnect();
@@ -101,11 +102,11 @@ chrome.runtime.onMessage.addListener(
 
         var observernewyorkerSignIn= new MutationObserverNewyorker(function(mutations, observer) {
 
-          var newyorkerSignInPresent = $(":contains(You’ve read your last complimentary article.)").get(0);
+          var newyorkerSignInPresent = $(":contains(You’ve read your last complimentary article this month.)").get(0);
 
           // password field has appeared
           if(newyorkerSignInPresent) {
-            var newyorkerSignIn = $('a[href*="https://account.newyorker.com/"]').get(0);
+            var newyorkerSignIn = $('a[href*="account/sign-in"]').get(0);
             newyorkerSignIn.click();
             observernewyorkerSignIn.disconnect();
             chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'newyorker', article: location.href});
@@ -146,4 +147,12 @@ function limiter(fn, wait){
 
         caller();
     };
+}
+
+function findElementbyTextContent(eltype, text) {
+  var buttons = document.querySelectorAll(eltype);
+  for (var i=0, l=buttons.length; i<l; i++) {
+    if (buttons[i].firstChild.nodeValue == text)
+      return buttons[i];
+  }  
 }

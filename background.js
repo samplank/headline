@@ -6,6 +6,7 @@ var signOutComplete = false;
 var isPaid = true;
 var hasLicense;
 var currentSite;
+var currentArticle;
 var signOutTab;
 var userID;
 var userEmail;
@@ -28,7 +29,6 @@ chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
   }
 
   else {
-    console.log('not authenticated');
     chrome.runtime.sendMessage({is_auth: 'not authenticated'});
   }
 
@@ -48,8 +48,12 @@ if (!userID) {
   chrome.runtime.onMessage.addListener(
       function(request, sender, sendResponse) {
         if(request.message === "popupRequestAuthentication") {
-          console.log('not authenticated');
-          chrome.runtime.sendMessage({is_auth: 'not authenticated'});
+          if(firebase.auth().currentUser) {
+            answerAuthentication(firebase.auth().currentUser.uid);
+          } else {
+
+            chrome.runtime.sendMessage({is_auth: 'not authenticated'});
+          }
         }
       }
     );
@@ -59,40 +63,49 @@ function waitForUserID(){
   if(typeof userID !== "undefined"){
     checkIfNewUserandInitialize(userID);
 
-    console.log('in')
-
     chrome.browserAction.onClicked.addListener(function(tab) {
       sendCredits(userID);
     });  
 
     chrome.tabs.onUpdated.addListener(
       function(tabId, changeInfo, tab) {
+
         sendCredits(userID);
 
         // send message to active tab to begin sign in process, once it has loaded
-        if ((currentSite == 'nyt' ||currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') && changeInfo.status == "complete" && startSignIn == true) {
-          
+        if ((currentSite == 'nyt' || currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') && changeInfo.status == "complete" && startSignIn == true) {
+          startSignIn = false;
           //get the login credentials and send them below
-          let { val, auth_email, password } = getSiteLoginCredentials(userID, currentSite)
+          var credentialRef = firebase.database().ref('users/' + userID + '/credentials/' + currentSite);
 
-          //send credentials to the current site and start sign in
-          chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            var activeTab = tabs[0];
-            chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in", "auth_email": auth_email, "password": password});
-            chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in"});
-            isPaid = false;
+          credentialRef.once("value").then((snapshot) => {
+            //get credentials
+            val = snapshot.val();
+            auth_email = val.auth_email;
+            password = val.pass;
+            //find active tab
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+              var activeTab = tabs[0];
+              //send credentials to active tab
+              chrome.tabs.sendMessage(activeTab.id, {"message": "start_sign_in", "auth_email": auth_email, "password": password, "current_article": currentArticle});
+            });
           });
+
+          isPaid = false;
         }
 
-        // logout in a background tab
         if (changeInfo.status == "complete" && isLoggedIn == true) {
           isLoggedIn = false;
-          startLogOut(currentSite);
-        } 
+          startLogOut(currentSite);          
+        }
 
         // finish the logout in the tab
         if (changeInfo.status == "complete" && signOutTab == tabId) {
           completeLogOut(currentSite)
+        }
+
+        if (changeInfo.status == "complete" && isLoggedIn == true) {
+
         }
       }
     );
@@ -105,6 +118,10 @@ function waitForUserID(){
         logArticle(userID, request.article);
 
         chrome.browserAction.setIcon({path: "icon_reading.png"});
+
+        currentSite = request.site;
+
+        currentArticle = request.article;
 
         beginSignIn(request.site);
       }
@@ -126,9 +143,18 @@ function waitForUserID(){
         answerAuthentication(userID);
       }
 
+      if(request.message === "initiate_logout") {     
+        isLoggedIn = false;
+        startLogOut(currentSite);
+      }
+
+      if(request.message === "redirect_after_load") {
+        redirectUrl = request.nav_url;
+        isRedirect = true;
+      } 
+
       if(request.is_credentials === true) {
         var licenseKey = request.license;
-        console.log(licenseKey);
         isValidLicense(licenseKey);
       }
 
@@ -160,7 +186,7 @@ function waitForUserID(){
 
   }
   else{
-      setTimeout(waitForUserID, 100);
+    setTimeout(waitForUserID, 100);
   }
 } 
 
@@ -174,9 +200,7 @@ function isValidLicense(licenseKey) {
     var licenseRef = firebase.database().ref('licenses/' + licenseKey);
     licenseRef.once("value").then((snapshot) => {
       if (snapshot.exists()) {
-        console.log('returned false');
       } else {
-        console.log('returned true');
         firebase.database().ref('users/' + userID + '/credits').set(
           50
         )
@@ -189,13 +213,19 @@ function isValidLicense(licenseKey) {
           licenseKey
         )
 
+        firebase.database().ref('users/' + userID + '/signUpTime').set(
+          Date.now()
+        )
+
+        firebase.database().ref('users/' + userID + '/lastCreditRefresh').set(
+          Date.now()
+        )
+
         firebase.database().ref('licenses/' + licenseKey).set(
           true
         ) 
       }
     });
-  } else {
-    console.log('returned false');
   }
 }
 
@@ -206,9 +236,7 @@ function checkIfNewUserandInitialize(userID) {
 
   userRef.once("value").then((snapshot) => {
     //check if it's a new user
-    console.log(snapshot.val())
     if (!snapshot.exists()) {
-      console.log('doesnt exist')
 
       var credRef = firebase.database().ref('hash');
 
@@ -230,6 +258,22 @@ function checkIfNewUserandInitialize(userID) {
           }
         )              
       });
+    } else {
+
+      var val = snapshot.val();
+      var d = new Date(val.lastCreditRefresh);
+      var nextRefresh = d.setMonth(d.getMonth() + 1);
+      var numReloads = val.credit_reloads
+
+      if (Date.now() > nextRefresh) {
+        var updates = {};
+        updates['users/' + userID + '/lastCreditRefresh'] = nextRefresh;
+        updates['users/' + userID + '/credits'] = 50;
+        updates['users/' + userID + '/credit_reloads'] = val.credit_reloads + 1;
+
+        var datRef = firebase.database().ref();
+        datRef.update(updates);           
+      }
     }
   });
 }
@@ -241,18 +285,6 @@ function sendCredits(userID){
     var val = snapshot.val();
     chrome.runtime.sendMessage({num_credits: val});
   });   
-}
-
-function getSiteLoginCredentials(userID, currentSite) {
-  var credentialRef = firebase.database().ref('users/' + userID + '/credentials/' + currentSite);
-
-  credentialRef.once("value").then((snapshot) => {
-    var val = snapshot.val();
-    var auth_email = val.auth_email;
-    var password = val.pass;
-  });
-
-  return {val, auth_email, password};
 }
 
 function startLogOut(currentSite) {
@@ -276,9 +308,7 @@ function startLogOut(currentSite) {
 
   if (currentSite == 'newyorker') {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      var activeTab = tabs[0];
-      console.log(activeTab.id);
-      console.log(activeTab);          
+      var activeTab = tabs[0];        
       chrome.tabs.sendMessage(activeTab.id, {"message": "signOutNewYorker"});
     });        
   }
@@ -296,6 +326,10 @@ function completeLogOut(currentSite) {
   if (currentSite == "atlantic") {
     chrome.tabs.sendMessage(signOutTab, {"message": "signOutAtlantic"});
   }
+
+  if (currentSite == "newyorker") {
+    chrome.tabs.sendMessage(signOutTab, {"message": "signOutNewYorker"});
+  }
 }
 
 function logArticle(userID, article) {
@@ -310,9 +344,9 @@ function logArticle(userID, article) {
 
 function beginSignIn(currentSite) {
   // NYT doesn't load a new page, so send start_sign_in here
-  if (currentSite == 'nyt' ||currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') {
-    startSignIn = true;
-  }  
+    if ((currentSite == 'nyt') ||currentSite == 'wapo' || currentSite == 'atlantic' || currentSite == 'newyorker') {
+      startSignIn = true;
+    }
 }
 
 function sendCreditsandReadApproval(userID) {

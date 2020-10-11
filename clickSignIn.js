@@ -6,8 +6,16 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.is_read && request.num_credits > 0) {
       if (location.href.includes("nytimes.com")) {
+
         var nytSignInClick = $('a[href*="https://myaccount.nytimes.com/auth/login?response_type="]').get(0);
         var isPaywall = document.getElementById("gateway-content");
+
+        if(nytSignInClick && isPaywall) {
+          // createOverlay();
+          nytSignInClick.click();
+          // createOverlay();
+          limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt', article: location.href, nyt_flag: 'click_login'}), 500);             
+          }
 
         MutationObserverNYT = window.MutationObserver || window.WebKitMutationObserver;
 
@@ -15,10 +23,12 @@ chrome.runtime.onMessage.addListener(
 
           var nytSignInClick = $('a[href*="https://myaccount.nytimes.com/auth/login?response_type="]').get(0);
           var isPaywall = document.getElementById("gateway-content");
-          
+
           // password field has appeared
           if(nytSignInClick && isPaywall) {
+            // createOverlay();
             nytSignInClick.click();
+            // createOverlay();
             observernytSignIn.disconnect();
             limiter(chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'nyt', article: location.href, nyt_flag: 'click_login'}), 500);             
           }
@@ -43,6 +53,16 @@ chrome.runtime.onMessage.addListener(
       } else if (location.href.includes("washingtonpost.com")) {
         // var wapoSignIn = $('a[href*="washingtonpost.com/subscribe/signin/"]').get(0);
 
+        var wapoSignIn = document.getElementById('PAYWALL_V2_SIGN_IN');
+
+        // password field has appeared
+        if(wapoSignIn) {
+          // createOverlay();
+          wapoSignIn.click();
+          // createOverlay();
+          chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'wapo', article: location.href});
+        }
+
         MutationObserverWaPo = window.MutationObserver || window.WebKitMutationObserver;
 
         var observerwapoSignIn= new MutationObserverWaPo(function(mutations, observer) {
@@ -51,7 +71,9 @@ chrome.runtime.onMessage.addListener(
 
           // password field has appeared
           if(wapoSignIn) {
+            // createOverlay();
             wapoSignIn.click();
+            // createOverlay();
             observerwapoSignIn.disconnect();
             chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'wapo', article: location.href});
           }
@@ -84,7 +106,9 @@ chrome.runtime.onMessage.addListener(
           // password field has appeared
           if(atlanticSignInPresent && freeArticlesRemaining) {
             var atlanticSignIn = $('a[href*="accounts.theatlantic.com/login/"]').get(0);
+            // createOverlay();
             atlanticSignIn.click();
+            // createOverlay();
             observeratlanticSignIn.disconnect();
             chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'atlantic', article: location.href});
           }
@@ -97,7 +121,18 @@ chrome.runtime.onMessage.addListener(
         });              
       	
       } else if (location.href.includes("newyorker.com")) {
+          
+        var newyorkerSignInPresent = $(":contains(You’ve read your last complimentary article this month.)").get(0);
 
+        // password field has appeared
+        if(newyorkerSignInPresent) {
+          var newyorkerSignIn = $('a[href*="account/sign-in"]').get(0);
+          // createOverlay();
+          newyorkerSignIn.click();
+          // createOverlay();
+          chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'newyorker', article: location.href});
+        }
+        
         MutationObserverNewyorker = window.MutationObserver || window.WebKitMutationObserver;
 
         var observernewyorkerSignIn= new MutationObserverNewyorker(function(mutations, observer) {
@@ -107,7 +142,9 @@ chrome.runtime.onMessage.addListener(
           // password field has appeared
           if(newyorkerSignInPresent) {
             var newyorkerSignIn = $('a[href*="account/sign-in"]').get(0);
+            // createOverlay();
             newyorkerSignIn.click();
+            // createOverlay();
             observernewyorkerSignIn.disconnect();
             chrome.runtime.sendMessage({message: "popupButtonClicked", site: 'newyorker', article: location.href});
           }
@@ -156,3 +193,10 @@ function findElementbyTextContent(eltype, text) {
       return buttons[i];
   }  
 }
+
+function createOverlay() {
+  var overlay = document.createElement("div");
+  overlay.class = 'overlay';
+  document.body.appendChild(overlay);                   
+}
+

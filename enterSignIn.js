@@ -2,6 +2,7 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
 
     if(request.message === "start_sign_in") {
+      createOverlay();
       var auth_email = request.auth_email;
       var password = request.password;
       var currentArticle = request.current_article;
@@ -101,6 +102,7 @@ chrome.runtime.onMessage.addListener(
         // username field has appeared
         if(enterUsername) {
           signInDetails(enterUsername, auth_email, enterPassword, password, signIn, clickSignIn);
+          enterPassword.click()
 
           chrome.runtime.sendMessage({site: "newyorkerLogin"});
 
@@ -254,6 +256,7 @@ function signInDetails(enterUsername, auth_email, enterPassword, password, signI
   enterUsername.dispatchEvent(new Event("change", { bubbles: true }));
   enterPassword.value = password
   enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
+  enterPassword.focus();
   callback(signIn);
 }
 
@@ -264,7 +267,16 @@ function clickSignIn(signIn) {
   }, 500);
 }
 
-
+function createOverlay() {
+  var overlay = document.createElement("div");
+  var imgReadr = document.createElement("img");
+  overlay.className = 'overlay';
+  imgReadr.id = 'readingIcon'
+  imgReadr.src = chrome.extension.getURL("/readrworking.png");
+  overlay.appendChild(imgReadr);
+  document.body.appendChild(overlay);
+  console.log(overlay);
+}
 
 
 

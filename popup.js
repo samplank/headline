@@ -22,6 +22,7 @@ $(document).ready(function() {
       var num_credits = document.getElementById("num_credits");
       
       if (request.is_auth === 'paid user') {
+        document.getElementById('welcome').style = "display: none";
         document.getElementById('paid_user').style = "display: block";
         document.getElementById('trial_user').style = "display: none";
         document.getElementById('not_authenticated').style = "display: none";
@@ -30,6 +31,7 @@ $(document).ready(function() {
         chrome.runtime.sendMessage({message: "popupRequestCredits"});
 
       } else if (request.is_auth === 'trial user') {
+        document.getElementById('welcome').style = "display: block";
         document.getElementById('paid_user').style = "display: none";
         document.getElementById('trial_user').style = "display: block";
         document.getElementById('not_authenticated').style = "display: none";
@@ -37,6 +39,7 @@ $(document).ready(function() {
 
 
       } else if (request.is_auth === 'not authenticated') {
+        document.getElementById('welcome').style = "display: none";
         document.getElementById('paid_user').style = "display: none";
         document.getElementById('trial_user').style = "display: none";
         document.getElementById('not_authenticated').style = "display: block";
@@ -46,13 +49,13 @@ $(document).ready(function() {
       }
 
       if (request.num_credits <= 0) {
-        num_credits.innerHTML = "You are out of credits!";
+        num_credits.innerHTML = "You are out of articles!";
         // document.getElementById("headlineView").disabled = true;
       } else if (request.num_credits > 0) {
         console.log('credits received')
         var credits = request.num_credits;
           // var message = document.getElementById("message");
-          num_credits.innerHTML = credits + " credits left";
+          num_credits.innerHTML = credits + " articles left";
         }
     }
   );

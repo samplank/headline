@@ -12,6 +12,7 @@
       "matches": [
             "*://*.nytimes.com/*", "*://*.washingtonpost.com/*", "*://*.theatlantic.com/*", "*://*.newyorker.com/*"
       ],
+      "css": ["style.css"],
       "js": ["jquery.js", "popup.js", "clickSignIn.js", "enterSignIn.js"],
       "all_frames": true
     }
@@ -38,5 +39,6 @@
       "https://www.googleapis.com/auth/userinfo.profile"
     ]
   },
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnLDz4MaAzh2NGewcHaaJNGMrqblLdOxY1WleEUgQJhDFZeQrK5jCQxml/65utvz7mzjK/3yd5jI0NO0Lz7B5ufgrv3LxjgHlosLoVep7z4eMoE1sUGtWKX55KCrPic/aAXpgPk+f+L8+dgnWH57IeRp33zVBPCnMfNKjmpiKwZ0YZN/QVws72ojSrX/O9gWLk3C3rgWv8ao9xoujKRUoz/pkes73OohtbgsCzE3gu06spizSU6r9lCR5V26cobayEcIurh3MrvtuJfDQ0FeC3kWb7YAXf/H+wnV0xFOSpRRiWvMWmgNpzVBSbEyvvdoIuPghYYy7wrBHEFo4FiCC+QIDAQAB"
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnLDz4MaAzh2NGewcHaaJNGMrqblLdOxY1WleEUgQJhDFZeQrK5jCQxml/65utvz7mzjK/3yd5jI0NO0Lz7B5ufgrv3LxjgHlosLoVep7z4eMoE1sUGtWKX55KCrPic/aAXpgPk+f+L8+dgnWH57IeRp33zVBPCnMfNKjmpiKwZ0YZN/QVws72ojSrX/O9gWLk3C3rgWv8ao9xoujKRUoz/pkes73OohtbgsCzE3gu06spizSU6r9lCR5V26cobayEcIurh3MrvtuJfDQ0FeC3kWb7YAXf/H+wnV0xFOSpRRiWvMWmgNpzVBSbEyvvdoIuPghYYy7wrBHEFo4FiCC+QIDAQAB",
+  "web_accessible_resources": ["readrworking.png"]
 }

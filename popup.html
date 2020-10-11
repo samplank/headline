@@ -30,20 +30,55 @@
           height: 50px;
         }
 
+/*        #welcome {
+          font-size: 18px;
+          padding-bottom: 10px;
+          font: Georgia;          
+        }*/
+
 
 
     </style>
     <script src="jquery.js"></script>
     <script src='popup.js'></script>
   </head>
-  <body style="width:150px;">
+  <body style="width:300px;font:Georgia;">
     <div id='title'>
       <img src="readr_logo.png">
     </div>
+    <div id='welcome' style='display: none;'>
+    <h2>Welcome to your free trial!</h2>
+    </div>
     <div id='num_credits'></div>
     <div id='trial_user' style='display: none;'>
+      <h2>How to use Readr:</h2>
+      <ul>
+        <li>Click on any article from the New York Times, Washington Post, Atlantic, or New Yorker</li>
+        <br>
+        <li>When you hit a paywall, the Readr screen will pop up to clear it away!</li>
+        <br>
+        <li>You can ignore the new tab that opens in the background. It's completing the Readr logout.</li>
+      </ul>
+      <h2>How to get more articles:</h2>  
+      <ul>
+        <li><a href="https://gumroad.com/l/cPZlx">Buy a subscription at Gumroad</a> for 50 articles a month.</li>
+        <br>
+
+        <li>
+          <form id='credentials'>
+    
+          <label for="license">Enter the license key you got from Gumroad for your subscription:</label><br>
+          <input type="text" id="license" name="fname"><br>
+
+          <input type="submit" value="Submit">
+
+      </form>
+        </li>
+
+      </ul>
+
       <!-- <br> -->
-      <p>We hope you enjoy your free trial new readr! <a href="https://gumroad.com/l/cPZlx">Buy a subscription</a> for 50 credits a month and enter your license key below:</p>
+      <!-- <p>We hope you enjoy your free trial new readr! <a href="https://gumroad.com/l/cPZlx">Buy a subscription</a> for 50 credits a month and enter your license key below:</p>
        <form id='credentials'>
     
         <label for="license">License key:</label><br>
@@ -51,7 +86,7 @@
 
         <input type="submit" value="Submit">
 
-      </form>
+      </form> -->
     </div>
     <div id='paid_user' style='display: none;'>
     <p><a href="https://gumroad.com/l/cPZlx">Update subscription</a>

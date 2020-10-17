@@ -117,7 +117,8 @@ function waitForUserID(){
 
         logArticle(userID, request.article);
 
-        chrome.browserAction.setIcon({path: "icon_reading.png"});
+        // chrome.browserAction.setIcon({path: "icon_reading.png"});
+        chrome.browserAction.setBadgeText({ text: "READ" })
 
         currentSite = request.site;
 
@@ -241,22 +242,32 @@ function checkIfNewUserandInitialize(userID) {
       var credRef = firebase.database().ref('hash');
 
       //pull a set of credentials
-      credRef.limitToFirst(1).once('value').then(snapshot => {
+      credRef.orderByChild("count").limitToFirst(1).once('value').then(snapshot => {
+        var credKey;
         var creds;
         snapshot.forEach(function(snapshot2) {
-          creds = snapshot2.val();
+          credKey = snapshot2.key;
+          creds = snapshot2.val().info;
         });
 
 
         //assign the credentials to the user
         firebase.database().ref('users/' + userID).set(
           {
+            email: userEmail,
             credentials: creds,
             credits: 5,
             credit_reloads: 0,
             status: 'trial'
           }
-        )              
+        )
+
+        firebase.database()
+          .ref('hash')
+          .child(credKey)
+          .child('count')
+          .set(firebase.database.ServerValue.increment(1))
+
       });
     } else {
 
@@ -307,10 +318,13 @@ function startLogOut(currentSite) {
   }
 
   if (currentSite == 'newyorker') {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      var activeTab = tabs[0];        
-      chrome.tabs.sendMessage(activeTab.id, {"message": "signOutNewYorker"});
-    });        
+    // chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    //   var activeTab = tabs[0];        
+    //   chrome.tabs.sendMessage(activeTab.id, {"message": "signOutNewYorker"});
+    // });        
+    chrome.tabs.create({url: 'https://www.newyorker.com/auth/end', active: false}, function(tab){
+      signOutTab = tab.id;
+    });
   }
 }
 
@@ -401,7 +415,7 @@ function answerAuthentication(userID) {
         chrome.runtime.sendMessage({is_auth: 'paid user'});
       }
     } else {
-      chrome.runtime.sendMessage({is_auth: 'new user'});
+      chrome.runtime.sendMessage({is_auth: 'not authenticated'});
     }
   });
 }
@@ -424,17 +438,23 @@ function decrementValue(userID) {
 }
 
 function finishLogout() {
-  if (currentSite === 'nyt' || currentSite === 'wapo' || currentSite === 'atlantic') {
+  if (currentSite === 'nyt' || currentSite === 'wapo' || currentSite === 'atlantic' || currentSite === 'newyorker') {
     chrome.tabs.remove(signOutTab, function() {
       signOutTab = null;
       startSignIn = false;
-      chrome.browserAction.setIcon({path: "icon_background.png"});
+      // chrome.browserAction.setIcon({path: "icon_background.png"});
+      chrome.browserAction.setBadgeText({ text: '' })
+
+
     });
-  } else if (currentSite === 'newyorker') {
-    signOutTab = null;
-    startSignIn = false;
-    chrome.browserAction.setIcon({path: "icon_background.png"});        
-  }
+  } 
+  // else if (currentSite === 'newyorker') {
+  //   signOutTab = null;
+  //   startSignIn = false;
+  //   // chrome.browserAction.setIcon({path: "icon_background.png"});
+  //   chrome.browserAction.setBadgeText({ text: '' })
+
+  // }
 }
 
 //--------------------------//

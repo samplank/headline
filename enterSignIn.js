@@ -225,9 +225,68 @@ chrome.runtime.onMessage.addListener(
     }
 
     if( request.message === "signOutNewYorker" ) {
-      var signOut = $('button:contains("Sign out")').get(0);
-      signOut.click();
-      chrome.runtime.sendMessage({logout: "success"});
+      
+      var existsSignIn = $('a[href="/account/sign-in"]');
+
+      if(existsSignIn) {
+        chrome.runtime.sendMessage({logout: "success"});
+
+      }
+
+      MutationObserverSignOut = window.MutationObserver || window.WebKitMutationObserver;
+
+      var observerSignOut = new MutationObserverSignOut(function(mutations, observer) {
+
+        var existsSignIn = $('a[href="/account/sign-in"]');
+
+        if(existsSignIn) {
+          observerSignOut.disconnect();
+
+          chrome.runtime.sendMessage({logout: "success"});
+        }
+
+      });
+
+      observerSignOut.observe(document, {
+        subtree: true,
+        attributes: true
+        //...
+      });
+
+      setTimeout(function(){
+         window.location.reload(1);
+      }, 20000);
+
+
+
+
+      // console.log(request.message);
+      // var signOut = $('a[href="/auth/end"]').get(0);
+
+      // if (signOut) {
+      //   signOut.click();
+      //   chrome.runtime.sendMessage({logout: "success"});
+      // }
+
+      // MutationObserverSignOut = window.MutationObserver || window.WebKitMutationObserver;
+
+      // var observerSignOut = new MutationObserverSignOut(function(mutations, observer) {
+
+      //   var signOut = $('a[href="/auth/end"]').get(0);
+      //   console.log(signOut);
+
+      //   if(signOut) {
+      //     observerSignOut.disconnect();
+      //     signOut.click();
+      //     chrome.runtime.sendMessage({logout: "success"});
+      //   }
+      // });
+
+      // observerSignOut.observe(document, {
+      //   subtree: true,
+      //   attributes: true
+      //   //...
+      // });
 
       //add mutation observer to see if the sign out is complete
     }
@@ -254,6 +313,7 @@ function findElementbyTextContent(eltype, text) {
 function signInDetails(enterUsername, auth_email, enterPassword, password, signIn, callback) {
   enterUsername.value = auth_email
   enterUsername.dispatchEvent(new Event("change", { bubbles: true }));
+
   enterPassword.value = password
   enterPassword.dispatchEvent(new Event("change", { bubbles: true }));
   enterPassword.focus();
@@ -275,7 +335,6 @@ function createOverlay() {
   imgReadr.src = chrome.extension.getURL("/readrworking.png");
   overlay.appendChild(imgReadr);
   document.body.appendChild(overlay);
-  console.log(overlay);
 }
 
 

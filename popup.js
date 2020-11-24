@@ -37,14 +37,12 @@ $(document).ready(function() {
         document.getElementById('not_authenticated').style = "display: none";
         document.getElementById("num_credits").style = "display: block";
 
-
       } else if (request.is_auth === 'not authenticated') {
         document.getElementById('welcome').style = "display: none";
         document.getElementById('paid_user').style = "display: none";
         document.getElementById('trial_user').style = "display: none";
         document.getElementById('not_authenticated').style = "display: block";
         document.getElementById("num_credits").style = "display: none";
-
 
       }
 
@@ -56,7 +54,17 @@ $(document).ready(function() {
         var credits = request.num_credits;
           // var message = document.getElementById("message");
           num_credits.innerHTML = credits + " articles left";
-        }
+      }
+
+      if (request.top_site === 'nyt') {
+        document.getElementById('top_publication').innerHTML = "New York Times";
+      } else if (request.top_site === 'wapo') {
+        document.getElementById('top_publication').innerHTML = "Washington Post";
+      } else if (request.top_site === 'atlantic') {
+        document.getElementById('top_publication').innerHTML = "Atlantic";
+      } else if (request.top_site === 'newyorker') {
+        document.getElementById('top_publication').innerHTML = "New Yorker";
+      }
     }
   );
 

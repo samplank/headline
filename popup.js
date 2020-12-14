@@ -19,51 +19,59 @@ $(document).ready(function() {
       // var authenticated_div = document.getElementById('authenticated');
       // var notauthenticated_div = document.getElementById('not_authenticated');
 
-      var num_credits = document.getElementById("num_credits");
+      var num_credits_paid = document.getElementById("num_credits_paid");
+      var num_credits_free = document.getElementById("num_credits_trial");
+
       
       if (request.is_auth === 'paid user') {
         document.getElementById('welcome').style = "display: none";
         document.getElementById('paid_user').style = "display: block";
-        document.getElementById('trial_user').style = "display: none";
+        document.getElementById('trial_user_one').style = "display: none";
+        document.getElementById('trial_user_two').style = "display: none";
         document.getElementById('not_authenticated').style = "display: none";
-        document.getElementById("num_credits").style = "display: block";
+        document.getElementById("num_credits_paid").style = "display: block";
+        document.getElementById("num_credits_trial").style = "display: block";
 
         chrome.runtime.sendMessage({message: "popupRequestCredits"});
 
       } else if (request.is_auth === 'trial user') {
         document.getElementById('welcome').style = "display: block";
         document.getElementById('paid_user').style = "display: none";
-        document.getElementById('trial_user').style = "display: block";
+        document.getElementById('trial_user_one').style = "display: block";
+        document.getElementById('trial_user_two').style = "display: block;";
         document.getElementById('not_authenticated').style = "display: none";
-        document.getElementById("num_credits").style = "display: block";
+        document.getElementById("num_credits_paid").style = "display: block";
+        document.getElementById("num_credits_trial").style = "display: block";
 
       } else if (request.is_auth === 'not authenticated') {
         document.getElementById('welcome').style = "display: none";
         document.getElementById('paid_user').style = "display: none";
-        document.getElementById('trial_user').style = "display: none";
+        document.getElementById('trial_user_one').style = "display: none";
+        document.getElementById('trial_user_two').style = "display: none";
         document.getElementById('not_authenticated').style = "display: block";
-        document.getElementById("num_credits").style = "display: none";
+        document.getElementById("num_credits_paid").style = "display: none";
+        document.getElementById("num_credits_trial").style = "display: none";
 
       }
 
       if (request.num_credits <= 0) {
-        num_credits.innerHTML = "You are out of articles!";
-        // document.getElementById("headlineView").disabled = true;
+        num_credits_paid.innerHTML = "You are out of articles!";
+        num_credits_free.innerHTML = "You are out of articles!";
+
       } else if (request.num_credits > 0) {
-        console.log('credits received')
         var credits = request.num_credits;
-          // var message = document.getElementById("message");
-          num_credits.innerHTML = credits + " articles left";
+          num_credits_paid.innerHTML = credits;
+          num_credits_free.innerHTML = credits + " free articles left";
       }
 
       if (request.top_site === 'nyt') {
-        document.getElementById('top_publication').innerHTML = "New York Times";
+        document.getElementById('top_publication').innerHTML = "New York Times. Want to <a href='https://www.nytimes.com/subscription'>subscribe</a>?";
       } else if (request.top_site === 'wapo') {
-        document.getElementById('top_publication').innerHTML = "Washington Post";
+        document.getElementById('top_publication').innerHTML = "Washington Post. Want to <a href='https://subscribe.washingtonpost.com/'>subscribe</a>?";
       } else if (request.top_site === 'atlantic') {
-        document.getElementById('top_publication').innerHTML = "Atlantic";
+        document.getElementById('top_publication').innerHTML = "Atlantic. Want to <a href='https://accounts.theatlantic.com/products/'>subscribe</a>?";
       } else if (request.top_site === 'newyorker') {
-        document.getElementById('top_publication').innerHTML = "New Yorker";
+        document.getElementById('top_publication').innerHTML = "New Yorker. Want to <a href='https://subscribe.newyorker.com/'>subscribe</a>?";
       }
     }
   );
@@ -81,10 +89,13 @@ $(document).ready(function() {
         }
       );
 
+      document.getElementById('welcome').style = "display: none";
       document.getElementById('paid_user').style = "display: block";
-      document.getElementById('trial_user').style = "display: none";
+      document.getElementById('trial_user_one').style = "display: none";
+      document.getElementById('trial_user_two').style = "display: none";
       document.getElementById('not_authenticated').style = "display: none";
-      document.getElementById("num_credits").style = "display: block";
+      document.getElementById("num_credits_paid").style = "display: block";
+      document.getElementById("num_credits_trial").style = "display: block";
 
       chrome.runtime.sendMessage({message: "popupRequestCredits"});
     })

@@ -1,68 +1,39 @@
 <!DOCTYPE html>
 <html style=''>
   <head> 
-    <style>
-        /*div {
-          background-color: lightblue;
-        },*/
-        button {
-          height: 200px;
-          width: 100px;
-          outline: none;
-          background-color: #E06666;
-        }
-
-        img {
-          display: block;
-          margin-left: auto;
-          margin-right: auto;
-          width: 50%;
-          padding-bottom: 20px
-        }
-
-        #num_credits {
-          font-size: 16px;
-          padding-bottom: 10px;
-          font: Georgia;
-        }
-
-        #getmoreCredits {
-          height: 50px;
-        }
-
-/*        #welcome {
-          font-size: 18px;
-          padding-bottom: 10px;
-          font: Georgia;          
-        }*/
-
-
-
-    </style>
+    <link rel="stylesheet" href="style.css">
     <script src="jquery.js"></script>
     <script src='popup.js'></script>
   </head>
-  <body style="width:300px;font:Georgia;">
+  <body style="width:600px;font:Georgia;">
     <div id='title'>
       <img src="readr_logo.png">
     </div>
     <div id='welcome' style='display: none;'>
-    <h2>Welcome to your free trial!</h2>
     </div>
-    <div id='num_credits'></div>
-    <div id='trial_user' style='display: none;'>
-      <h2>How to use Readr:</h2>
-      <ul>
-        <li>Click on any article from the New York Times, Washington Post, Atlantic, or New Yorker</li>
-        <br>
-        <li>When you hit a paywall, the Readr screen will pop up to clear it away!</li>
-        <br>
-        <li>You can ignore the new tab that opens in the background. It's completing the Readr access flow.</li>
-      </ul>
-      <h2>How to get more articles:</h2>  
+    <div id='trial_user_one' style='display: none;'>
+      <div class='panel'>
+        <h2 id='num_credits_trial'>Welcome to your free trial!</h2>
+        <ul>
+          <li>Click on any article from the NYT, Washington Post, Atlantic, or New Yorker.</li>
+          <li>When you hit a paywall, the Readr screen will pop up to clear it away!</li>
+          <li>A new tab will open and close in the background to finish the Readr access flow.</li>
+        </ul>
+      </div>
+    </div>
+    <div id='what_to_read' class="panel">
+      <h2>What to Read:</h2>
+        <ul>
+          <li><a href='https://www.nytimes.com/2020/11/25/opinion/meghan-markle-miscarriage.html?action=click&module=Opinion&pgtype=Homepage'>The Losses We Share</a></li>
+          <li><a href='https://www.washingtonpost.com/politics/2020/11/24/georgia-senate-runoffs-focus-fire-is-raphael-warnock/'>In Georgia Senate runoffs, the focus and the fire is on Raphael Warnock</a></li>
+          <li><a href='https://www.theatlantic.com/health/archive/2020/11/pandemic-restrictions-no-logic/617204/'>The Logic of Pandemic Restrictions Is Falling Apart</a></li>
+        </ul>
+    </div>
+    
+    <div id="trial_user_two" class="panel" style="display: none; ">
+      <h2>Subscribe for full access:</h2>  
       <ul>
         <li><a href="https://gumroad.com/l/cPZlx">Buy a subscription at Gumroad</a> for 50 articles a month.</li>
-        <br>
 
         <li>
           <form id='credentials'>
@@ -77,25 +48,24 @@
 
       </ul>
 
-      <!-- <br> -->
-      <!-- <p>We hope you enjoy your free trial new readr! <a href="https://gumroad.com/l/cPZlx">Buy a subscription</a> for 50 credits a month and enter your license key below:</p>
-       <form id='credentials'>
-    
-        <label for="license">License key:</label><br>
-        <input type="text" id="license" name="fname"><br>
-
-        <input type="submit" value="Submit">
-
-      </form> -->
     </div>
+
     <div id='paid_user' style='display: none;'>
-      <div>Your most read publication is:</div>
-      <div id='top_publication'></div>
-      <p><a href="https://gumroad.com/l/cPZlx">Update subscription</a>
+      <div class='panel'>
+        <h2>Your Most Read Publication:</h2>  
+        <p id='top_publication'></p>
+      </div>
+      <div class="panel">
+        <h2>Articles Left This Month:</h2>
+        <p id='num_credits_paid'></p>
+      </div>
+      <p id='update_subscription'><a href="https://gumroad.com/l/cPZlx">Update Readr subscription</a>
     </div>
+
     <div id='not_authenticated' style='display: none;'>
       Sign in with Google in the popup window!
     </div>
+
 
     </script>
 </body>

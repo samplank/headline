@@ -2,62 +2,57 @@
 <html style=''>
   <head> 
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <script src="jquery.js"></script>
     <script src='popup.js'></script>
   </head>
-  <body style="width:600px;font:Georgia;">
-    <div id='title'>
-      <img src="readr_logo.png">
+  <body style="width:600px;background-color:#f6d0ce;">
+    <div id='title' class="centerImg">
+      <img src="readr_logo.svg">
     </div>
     <div id='welcome' style='display: none;'>
     </div>
     <div id='trial_user_one' style='display: none;'>
       <div class='panel'>
-        <h2 id='num_credits_trial'>Welcome to your free trial!</h2>
-        <ul>
-          <li>Click on any article from the NYT, Washington Post, Atlantic, or New Yorker.</li>
-          <li>When you hit a paywall, the Readr screen will pop up to clear it away!</li>
-          <li>A new tab will open and close in the background to finish the Readr access flow.</li>
+        <h3 id='num_credits_trial'>Welcome to your free trial!</h3>
+        <ul class="list-unstyled">
+          <ul>
+            <li>Click an article from the NYT, Washington Post, Atlantic, or New Yorker.</li>
+            <li>When you hit a paywall, Readr will clear it away!</li>
+            <li>A new tab will open and close in the background to finish the Readr access flow.</li>
+          </ul>
         </ul>
       </div>
     </div>
-    <div id='what_to_read' class="panel">
-      <h2>What to Read:</h2>
-        <ul>
-          <li><a href='https://www.nytimes.com/2020/11/25/opinion/meghan-markle-miscarriage.html?action=click&module=Opinion&pgtype=Homepage'>The Losses We Share</a></li>
-          <li><a href='https://www.washingtonpost.com/politics/2020/11/24/georgia-senate-runoffs-focus-fire-is-raphael-warnock/'>In Georgia Senate runoffs, the focus and the fire is on Raphael Warnock</a></li>
-          <li><a href='https://www.theatlantic.com/health/archive/2020/11/pandemic-restrictions-no-logic/617204/'>The Logic of Pandemic Restrictions Is Falling Apart</a></li>
-        </ul>
-    </div>
     
     <div id="trial_user_two" class="panel" style="display: none; ">
-      <h2>Subscribe for full access:</h2>  
-      <ul>
-        <li><a href="https://gumroad.com/l/cPZlx">Buy a subscription at Gumroad</a> for 50 articles a month.</li>
+      <h3>Subscribe for full access:</h3>  
+      <ul class="list-unstyled">
+        <ul>
+          <li><a href="https://gumroad.com/l/cPZlx">Buy a subscription at Gumroad</a> for 50 articles a month.</li>
 
-        <li>
-          <form id='credentials'>
-    
-          <label for="license">Enter the license key you got from Gumroad for your subscription:</label><br>
-          <input type="text" id="license" name="fname"><br>
-
-          <input type="submit" value="Submit">
-
-      </form>
-        </li>
+          <li>
+            <form id='credentials'>
+      
+            <label for="license">Enter the license key you got from Gumroad for your subscription:</label>
+          </li>
+          <input type="text" id="license" name="fname">
+          <input type="submit" id="submitButton" value="Submit">
+          </form>
+        </ul>
 
       </ul>
 
     </div>
 
     <div id='paid_user' style='display: none;'>
-      <div class='panel'>
-        <h2>Your Most Read Publication:</h2>  
-        <p id='top_publication'></p>
-      </div>
       <div class="panel">
-        <h2>Articles Left This Month:</h2>
+        <h3>Articles Left This Month:</h3>
         <p id='num_credits_paid'></p>
+      </div>      
+      <div class='panel'>
+        <h3>Your Most Read Publication:</h3>  
+        <p id='top_publication'></p>
       </div>
       <p id='update_subscription'><a href="https://gumroad.com/l/cPZlx">Update Readr subscription</a>
     </div>

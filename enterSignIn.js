@@ -2,6 +2,7 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
 
     if(request.message === "start_sign_in") {
+      console.log('start_sign_in');
       createOverlay();
       var auth_email = request.auth_email;
       var password = request.password;
@@ -256,39 +257,6 @@ chrome.runtime.onMessage.addListener(
       setTimeout(function(){
          window.location.reload(1);
       }, 20000);
-
-
-
-
-      // console.log(request.message);
-      // var signOut = $('a[href="/auth/end"]').get(0);
-
-      // if (signOut) {
-      //   signOut.click();
-      //   chrome.runtime.sendMessage({logout: "success"});
-      // }
-
-      // MutationObserverSignOut = window.MutationObserver || window.WebKitMutationObserver;
-
-      // var observerSignOut = new MutationObserverSignOut(function(mutations, observer) {
-
-      //   var signOut = $('a[href="/auth/end"]').get(0);
-      //   console.log(signOut);
-
-      //   if(signOut) {
-      //     observerSignOut.disconnect();
-      //     signOut.click();
-      //     chrome.runtime.sendMessage({logout: "success"});
-      //   }
-      // });
-
-      // observerSignOut.observe(document, {
-      //   subtree: true,
-      //   attributes: true
-      //   //...
-      // });
-
-      //add mutation observer to see if the sign out is complete
     }
 
   }
